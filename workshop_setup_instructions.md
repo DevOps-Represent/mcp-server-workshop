@@ -106,12 +106,16 @@ If needed:
 You’ll be deploying your MCP server using **Cloudflare Workers** or **Pages Functions**.
 
 - Sign up here: 👉 [Create a free Cloudflare account](https://dash.cloudflare.com/sign-up)
-- Install the Cloudflare CLI (`wrangler`) → [Install Wrangler](https://developers.cloudflare.com/workers/wrangler/install/)
+- Install the Cloudflare CLI (`wrangler`) → [Install Wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
 
 To test:
 
 ```bash
 npx wrangler --version
+// or
+npx wrangler version
+// or
+npx wrangler -v
 ```
 
 We’ll walk through the rest in the workshop.
