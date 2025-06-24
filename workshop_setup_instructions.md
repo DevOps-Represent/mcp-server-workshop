@@ -63,13 +63,12 @@ git --version
 ---
 
 <details>
-<summary><strong>4. Get an Anthropic API Key</strong></summary>
+<summary><strong>4. Create an account with Claude</strong></summary>
 
-We’ll be using Claude as the model backend, and you’ll need an API key from Anthropic.
+We’ll be using Claude and will take advantage of their free tier.
 
-👉 [Request Claude API access](https://docs.anthropic.com/claude/reference/getting-access-to-the-claude-api)
+👉 [Create a Claude account](https://claude.ai/)
 
-Once you have your key, keep it somewhere safe — we’ll use it in a `.env` file.
 
 </details>
 
@@ -143,7 +142,7 @@ We’ll provide a Gitpod link in the starter repo.
 
 - [ ] Node.js **v18+** OR Python **3.10+** installed  
 - [ ] Git installed + GitHub account ready  
-- [ ] Anthropic API key saved  
+- [ ] Create a Claude account  
 - [ ] Code editor installed (VS Code, etc.)  
 - [ ] Cloudflare account created  
 - [ ] Optional: Gitpod/Codespaces working  

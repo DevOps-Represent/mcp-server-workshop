@@ -55,7 +55,7 @@ All tools are free, open source, or have free tiers. We'll support you with setu
 You’ll need:
 - A personal GitHub account
 - A working Node.js v18+ or Python 3.10+ environment (or Gitpod access)
-- An [Anthropic API key](https://docs.anthropic.com/claude/reference/getting-access-to-the-claude-api) (free trial available)
+- An account with [Claude](https://claude.ai/) 
 - A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier is fine)
 
 </details>
