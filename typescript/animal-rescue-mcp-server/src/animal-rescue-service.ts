@@ -21,7 +21,15 @@ export const animalSchema = z.object({
   adopted: z.boolean(),
 });
 
+export const adoptionCertificateSchema = z.object({
+  animalId: z.string(),
+  timestamp: z.string(),
+  pickupLocation: z.string(),
+});
+
 export type Animal = z.infer<typeof animalSchema>;
+
+export type AdoptionCertificate = z.infer<typeof adoptionCertificateSchema>;
 
 // This is running in memory, ideally this would a deployed REST API that your MCP server communicates with, with a database.
 export class AnimalRescueService {
@@ -41,12 +49,20 @@ export class AnimalRescueService {
     return animal || null;
   }
 
-  adoptAnimal(id: string): boolean {
+  adoptAnimal(id: string): AdoptionCertificate | null {
     const animal = this.animals.find(animal => animal.id === id);
+    // return a new adoption certificate with a fake pickup location and curent time
+    const pickupLocation = "123 Main St, Anytown, USA";
+    const timestamp = new Date().toISOString();
+    const adoptionCertificate: AdoptionCertificate = {
+      animalId: id,
+      timestamp,
+      pickupLocation
+    };
     if (animal && !animal.adopted) {
       animal.adopted = true;
-      return true;
+      return adoptionCertificate;
     }
-    return false;
+    return null;
   }
 }

@@ -1,7 +1,8 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AnimalRescueService, animalSchema } from "./animal-rescue-service";
+import { AnimalRescueService, animalSchema, adoptionCertificateSchema } from "./animal-rescue-service";
+import { Certificate } from "crypto";
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
@@ -26,7 +27,10 @@ export class MyMCP extends McpAgent {
 				}
 			},
 			async () => ({
-				content: [],
+				content: [{
+					type: "text",
+					text: JSON.stringify(this.animalRescueService.listAnimals())
+				}],
 				structuredContent: { animals: this.animalRescueService.listAnimals() }
 			})
 		);
@@ -69,49 +73,27 @@ export class MyMCP extends McpAgent {
 			})
 		);
 
-		// Simple addition tool
-		this.server.tool(
-			"add",
-			{ a: z.number(), b: z.number() },
-			async ({ a, b }) => ({
-				content: [{ type: "text", text: String(a + b) }],
-			})
-		);
-
-		// Calculator tool with multiple operations
-		this.server.tool(
-			"calculate",
+		// Tool 4: adopt_pet
+		this.server.registerTool(
+			"adopt_pet",
 			{
-				operation: z.enum(["add", "subtract", "multiply", "divide"]),
-				a: z.number(),
-				b: z.number(),
-			},
-			async ({ operation, a, b }) => {
-				let result: number;
-				switch (operation) {
-					case "add":
-						result = a + b;
-						break;
-					case "subtract":
-						result = a - b;
-						break;
-					case "multiply":
-						result = a * b;
-						break;
-					case "divide":
-						if (b === 0)
-							return {
-								content: [
-									{
-										type: "text",
-										text: "Error: Cannot divide by zero",
-									},
-								],
-							};
-						result = a / b;
-						break;
+				title: "Adopt a pet",
+				description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error",
+				outputSchema: {
+					certificate: z.nullable(adoptionCertificateSchema),
+					success: z.boolean()
+				},
+				inputSchema: {
+					id: z.string()
 				}
-				return { content: [{ type: "text", text: String(result) }] };
+			},
+			async ({ id }) => {
+				var certificate = this.animalRescueService.adoptAnimal(id);
+				var success = certificate !== null;
+				return {
+					content: [],
+					structuredContent: { certificate: certificate, success: success }
+				}
 			}
 		);
 	}
