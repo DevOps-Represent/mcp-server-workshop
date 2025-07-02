@@ -45,7 +45,13 @@ export class AnimalRescueService {
   }
 
   getAnimalByName(name: string): Animal | null {
+    console.log("getAnimalByName", name);
+
+
     const animal = this.animals.find(animal => animal.name.toLowerCase() === name.toLowerCase());
+    console.log("animal", animal);
+
+    
     return animal || null;
   }
 

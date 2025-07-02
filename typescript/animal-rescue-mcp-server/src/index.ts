@@ -2,7 +2,6 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { AnimalRescueService, animalSchema, adoptionCertificateSchema } from "./animal-rescue-service";
-import { Certificate } from "crypto";
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
@@ -27,10 +26,11 @@ export class MyMCP extends McpAgent {
 				}
 			},
 			async () => ({
+        // some clients dont yet support structured content, so we need to return text
 				content: [{
-					type: "text",
-					text: JSON.stringify(this.animalRescueService.listAnimals())
-				}],
+          type: "text",
+          text: JSON.stringify(this.animalRescueService.listAnimals())
+        }],
 				structuredContent: { animals: this.animalRescueService.listAnimals() }
 			})
 		);
@@ -49,7 +49,10 @@ export class MyMCP extends McpAgent {
 				}
 			},
 			async ({ id }) => ({
-				content: [],
+				content: [{
+          type: "text",
+          text: JSON.stringify(this.animalRescueService.getAnimalById(id))
+        }],
 				structuredContent: { animal: this.animalRescueService.getAnimalById(id) }
 			})
 		);
@@ -68,7 +71,10 @@ export class MyMCP extends McpAgent {
 				}
 			},
 			async ({ name }) => ({
-				content: [],
+				content: [{
+          type: "text",
+          text: JSON.stringify(this.animalRescueService.getAnimalByName(name))
+        }],
 				structuredContent: { animal: this.animalRescueService.getAnimalByName(name) }
 			})
 		);
@@ -91,7 +97,13 @@ export class MyMCP extends McpAgent {
 				var certificate = this.animalRescueService.adoptAnimal(id);
 				var success = certificate !== null;
 				return {
-					content: [],
+					content: [{
+            type: "text",
+            text: JSON.stringify({
+              certificate: certificate,
+              success: success
+            })
+          }],
 					structuredContent: { certificate: certificate, success: success }
 				}
 			}
