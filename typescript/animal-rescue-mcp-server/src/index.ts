@@ -10,18 +10,32 @@ export class MyMCP extends McpAgent {
 		version: "1.0.0",
 	});
 
-  animalRescueServer = new AnimalRescueService();
+  animalRescueService = new AnimalRescueService();
 
   // animalRescueServer 
 
-  // Tool 1: list_animals
-  
-  // Tool 2: get_animal
-
-
   // Tool 3: adopt_pet
 
-	async init() {
+	async init() {		
+		// Tool 1: list_animals
+		this.server.registerTool(
+			"list_animals",
+			{
+				title: "List all animals",
+				description: "List all animals in the animal rescue service",
+			},
+			async () => ({
+				content: [
+					{
+						type: "text",
+						text: JSON.stringify(this.animalRescueService.listAnimals(), null, 2)
+					}
+				]
+			})
+		);
+
+		// Tool 2: get_animal
+
 		// Simple addition tool
 		this.server.tool(
 			"add",
