@@ -101,13 +101,18 @@ export class MyMCP extends McpAgent {
 export default {
 	fetch(request: Request, env: Env, ctx: ExecutionContext) {
 		const url = new URL(request.url);
+		const allowedOrigins = "https://playground.ai.cloudflare.com";
 
 		if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-			return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
+			return MyMCP
+				.serveSSE("/sse", { corsOptions: { origin: allowedOrigins } })
+				.fetch(request, env, ctx);
 		}
 
 		if (url.pathname === "/mcp") {
-			return MyMCP.serve("/mcp").fetch(request, env, ctx);
+			return MyMCP
+				.serve("/mcp", { corsOptions: { origin: allowedOrigins } })
+				.fetch(request, env, ctx);
 		}
 
 		return new Response("Not found", { status: 404 });
