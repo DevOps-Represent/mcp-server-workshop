@@ -1,9 +1,39 @@
-# Building a Remote MCP Server on Cloudflare (Without Auth)
+# Animal Rescue
 
-This example allows you to deploy a remote MCP server that doesn't require authentication on Cloudflare Workers.
+## Part 1
 
-## Get started
+- git clone
+- overview of the repo + code (typescript/python)
+- npm install
+- npm start
+- setup your MCP client with the correct URL (playground, cursor, claude etc..)
+- show the MCP Server connected?
+- explain the MCP scaffolding
+- MCP Agent class
+- the fetch method + MCP Server
+- implement <list_animals> tool
+- test out via the client
 
+<Lunch time>
+
+## Part 2
+
+- implement <get_animal_by_id>
+- test
+- implement <get_animal_by_name>
+- test
+- implement <adopt_pet>
+- E2E test of listing pets, filtering, then adopting
+- prompt engineering via tool description
+
+<handover to Cloudflare: bonus content>
+
+- productionising (deploy REST API)
+- deployment
+
+## Deploy
+
+<!-- TODO: make sure this button works for our project -->
 [![Deploy to Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/ai/tree/main/demos/remote-mcp-authless)
 
 This will deploy your MCP server to a URL like: `remote-mcp-server-authless.<your-account>.workers.dev/sse`
@@ -47,5 +77,9 @@ Update with this configuration:
   }
 }
 ```
+
+## Playground
+
+Use `llama-4-scout-17b-16e-instruct`
 
 Restart Claude and you should see the tools become available.

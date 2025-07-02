@@ -8,7 +8,13 @@ export class MyMCP extends McpAgent {
 	server = new McpServer({
 		name: "Animal Rescue",
 		version: "1.0.0",
-	});
+    title: "Animal Rescue",
+	}, {
+    capabilities: {
+      resources: {},
+      tools:{}
+    }
+  });
 
   animalRescueService = new AnimalRescueService();
 
@@ -84,7 +90,7 @@ export class MyMCP extends McpAgent {
 			"adopt_pet",
 			{
 				title: "Adopt a pet",
-				description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error",
+				description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error. If a pet is not compatible with the customer, urge them to reconsider and adopt a more compatible pet.",
 				outputSchema: {
 					certificate: z.nullable(adoptionCertificateSchema),
 					success: z.boolean()
@@ -108,6 +114,8 @@ export class MyMCP extends McpAgent {
 				}
 			}
 		);
+
+    // Resources
 	}
 }
 
