@@ -31,8 +31,13 @@ export class AnimalRescueService {
     return this.animals.filter(animal => !animal.adopted);
   }
 
-  getAnimal(id: string): Animal | null {
+  getAnimalById(id: string): Animal | null {
     const animal = this.animals.find(animal => animal.id === id);
+    return animal || null;
+  }
+
+  getAnimalByName(name: string): Animal | null {
+    const animal = this.animals.find(animal => animal.name.toLowerCase() === name.toLowerCase());
     return animal || null;
   }
 

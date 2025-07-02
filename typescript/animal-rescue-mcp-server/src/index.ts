@@ -14,8 +14,6 @@ export class MyMCP extends McpAgent {
 
   // animalRescueServer 
 
-  // Tool 3: adopt_pet
-
 	async init() {		
 		// Tool 1: list_animals
 		this.server.registerTool(
@@ -23,6 +21,9 @@ export class MyMCP extends McpAgent {
 			{
 				title: "List all animals",
 				description: "List all animals in the animal rescue service",
+				outputSchema: {
+					animals: z.array(animalSchema)
+				}
 			},
 			async () => ({
 				content: [],
@@ -30,23 +31,41 @@ export class MyMCP extends McpAgent {
 			})
 		);
 
-		// Tool 2: get_animal
+		// Tool 2: get_animal_by_id
 		this.server.registerTool(
-			"get_animal",
+			"get_animal_by_id",
 			{
 				title: "Get an animal",
-				description: "Get an animal by name",
+				description: "Get an animal by id, only use this if you know the id of the animal",
 				outputSchema: {
-					animals: animalSchema
+					animal: z.nullable(animalSchema)
+				},
+				inputSchema: {
+					id: z.string()
+				}
+			},
+			async ({ id }) => ({
+				content: [],
+				structuredContent: { animal: this.animalRescueService.getAnimalById(id) }
+			})
+		);
+
+		// Tool 3: get_animal_by_name
+		this.server.registerTool(
+			"search_animals_by_name",
+			{
+				title: "Get an animal",
+				description: "Find an animal by name, only use this if you know the name of the animal",
+				outputSchema: {
+					animal: z.nullable(animalSchema)
+				},
+				inputSchema: {
+					name: z.string()
 				}
 			},
 			async ({ name }) => ({
-				content: [
-					{
-						type: "text",
-						text: JSON.stringify(this.animalRescueService.getAnimal(name), null, 2)
-					}
-				]
+				content: [],
+				structuredContent: { animal: this.animalRescueService.getAnimalByName(name) }
 			})
 		);
 
