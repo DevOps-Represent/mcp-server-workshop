@@ -1,24 +1,27 @@
+import { z } from 'zod';
 import { ANIMALS_DATA } from './animal-data';
 
-export interface Animal {
-  id: string;
-  name: string;
-  species: string;
-  breed: string;
-  age: number;
-  gender: 'male' | 'female';
-  size: 'small' | 'medium' | 'large';
-  color: string;
-  description: string;
-  vaccinated: boolean;
-  spayedNeutered: boolean;
-  goodWithKids: boolean;
-  goodWithPets: boolean;
-  energyLevel: 'low' | 'medium' | 'high';
-  adoptionFee: number;
-  dateArrived: string;
-  adopted: boolean;
-}
+export const animalSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  species: z.string(),
+  breed: z.string(),
+  age: z.number(),
+  gender: z.enum(['male', 'female']),
+  size: z.enum(['small', 'medium', 'large']),
+  color: z.string(),
+  description: z.string(),
+  vaccinated: z.boolean(),
+  spayedNeutered: z.boolean(),
+  goodWithKids: z.boolean(),
+  goodWithPets: z.boolean(),
+  energyLevel: z.enum(['low', 'medium', 'high']),
+  adoptionFee: z.number(),
+  dateArrived: z.string(),
+  adopted: z.boolean(),
+});
+
+export type Animal = z.infer<typeof animalSchema>;
 
 // This is running in memory, ideally this would a deployed REST API that your MCP server communicates with, with a database.
 export class AnimalRescueService {

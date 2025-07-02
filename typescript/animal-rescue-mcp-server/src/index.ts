@@ -1,7 +1,7 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { AnimalRescueService } from "./animal-rescue-service";
+import { AnimalRescueService, animalSchema } from "./animal-rescue-service";
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
@@ -25,16 +25,30 @@ export class MyMCP extends McpAgent {
 				description: "List all animals in the animal rescue service",
 			},
 			async () => ({
-				content: [
-					{
-						type: "text",
-						text: JSON.stringify(this.animalRescueService.listAnimals(), null, 2)
-					}
-				]
+				content: [],
+				structuredContent: { animals: this.animalRescueService.listAnimals() }
 			})
 		);
 
 		// Tool 2: get_animal
+		this.server.registerTool(
+			"get_animal",
+			{
+				title: "Get an animal",
+				description: "Get an animal by name",
+				outputSchema: {
+					animals: animalSchema
+				}
+			},
+			async ({ name }) => ({
+				content: [
+					{
+						type: "text",
+						text: JSON.stringify(this.animalRescueService.getAnimal(name), null, 2)
+					}
+				]
+			})
+		);
 
 		// Simple addition tool
 		this.server.tool(
