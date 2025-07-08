@@ -29,9 +29,9 @@ Open your newly cloned repo in your IDE of choice and let's take a look at what'
 * 📄 animal-data.ts: Static JSON-like data that contains info on adoptable pets
 * 📄 TODO brief description of other files that are important
 
-Imports!
+#### Imports!
 
-📦 index.ts Import Descriptions
+**📦 index.ts Import Descriptions**
 ```
 import { McpAgent } from "agents/mcp";
 ```
@@ -63,6 +63,95 @@ We've done some work to create the animal rescue service, so you're not creating
 * animalSchema: A Zod schema that describes what a valid animal object looks like (e.g., name, type, home requirements).
 * adoptionCertificateSchema: Another Zod schema — likely used for generating structured confirmation when a pet is adopted (e.g., name, date, adopter).
 
+#### 📥 How Your MCP Server Handles Incoming Requests (Cloudflare example)
+
+At the bottom of your `index.ts`, you'll see a block of code like this:
+
+```ts
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const url = new URL(request.url);
+    const allowedOrigins = "https://playground.ai.cloudflare.com";
+
+    if (url.pathname === "/sse" || url.pathname === "/sse/message") {
+      return MyMCP
+        .serveSSE("/sse", { corsOptions: { origin: allowedOrigins } })
+        .fetch(request, env, ctx);
+    }
+
+    if (url.pathname === "/mcp") {
+      return MyMCP
+        .serve("/mcp", { corsOptions: { origin: allowedOrigins } })
+        .fetch(request, env, ctx);
+    }
+
+    return new Response("Not found", { status: 404 });
+  },
+};
+```
+
+**🧠 What This Is Doing Using a Cloudflare playground version**
+
+This section is what your mcp client uses to decide how to route incoming HTTP requests to the right part of your MCP server.
+
+**🔁 fetch(...)**
+
+This is the main handler. Every time a request comes into your server, it runs this function.
+
+⸻
+
+🧩 Let’s break down what each part does:
+
+**✅ const url = new URL(request.url);**
+
+Parses the request so we can check what the URL path is (like /sse or /mcp).
+
+<details>
+<summary>⚔️ Side Quest: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
+
+### 🧠 `/mcp` – The Main Request Handler  
+This is the **core MCP endpoint**.
+
+- It handles **regular prompts** from your client (like Claude or Cursor).
+- It takes in a message, routes it through your agent and tools, and returns a **complete response**.
+- Think of it like:  
+  > “Here’s a question. Give me the full answer.”
+
+---
+
+### 🔄 `/sse` – Streaming Responses  
+This stands for **Server-Sent Events**.
+
+- It allows the AI to **stream back partial responses** as it thinks — like it's typing in real time.
+- It’s often used for **multi-step reasoning**, where you want to see thoughts unfold step-by-step.
+- Think of it like:  
+  > “Tell me your thought process as you go.”
+
+---
+
+### 🧪 TL;DR
+
+| Route   | What It Does                                  | When It’s Used                            |
+|---------|-----------------------------------------------|-------------------------------------------|
+| `/mcp`  | Standard single-shot prompt & tool handling   | Most tool-based interactions              |
+| `/sse`  | Streams back thoughts step-by-step            | When using agents that think out loud (like ReAct) |
+
+</details>
+<br>
+
+
+
+**✅ const allowedOrigins = "https://playground.ai.cloudflare.com";**
+
+This sets up CORS (Cross-Origin Resource Sharing) to only allow requests from the Cloudflare AI Playground.
+This is a safety feature that prevents other websites from using your server without permission.
+
+**🛑 All other paths**
+```
+return new Response("Not found", { status: 404 });
+```
+If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
+
 
 ### 3. 📦 Install dependencies
 Install the required packages and start your MCP server so it can run locally and accept connections from your AI client.
@@ -79,7 +168,7 @@ npm start
 
 You should see your MCP server booting up on http://localhost:3333
 
-⸻
+
 
 ### 5. 🔌 Connect your MCP client
 
@@ -138,6 +227,94 @@ This tool connects your MCP server to your animal data and makes it available to
 🧠 Where Do I Add This?
 
 Add this inside your init() method in your MyMCP class (in index.ts - which is where all your tools will be added).
+
+Look for `// Tool 1: list_animals`
+
+Start typing out the registerTool() call inside init():
+```
+this.server.registerTool(
+  "list_animals", // the tool name
+  {
+    title: "List all animals",
+    description: "TODO",
+    outputSchema: {
+      animals: z.array(animalSchema)
+    }
+  },
+  // We’ll add what the tool does in the next step — it will return a list of animals as plain text
+);
+```
+ℹ️ The tool name `list_animals` is how your mcp client will refer to it internally.
+
+**Let's fill in the description where it currently says `TODO`.**
+
+Tool descriptions are important, it's like SEO for your tool - the better you do it, the easier its discoverable by Claude for exmaple.
+
+**🤔 What did you come up with for your tool description?**
+
+<details>
+<summary>⚔ Side Quest: Writing Good Tool Descriptions</summary>
+
+Picking the right description for your tool helps your mcp client know when (and how) to use it. This isn’t just documentation — it’s **part of the prompt**.
+
+---
+
+### ✅ Good Examples
+
+| Tool Name         | Description                                                                 |
+|------------------|------------------------------------------------------------------------------|
+| `list_animals`       | List all animals currently available for adoption.                        |
+| `get_animal_by_id`   | Look up an animal by its unique ID and return its full profile.           |
+| `adopt_pet`          | Mark an animal as adopted and remove it from the list of available pets.  |
+| `get_adoption_costs` | Return the adoption fee and any medical costs for a specific animal.       |
+| `suggest_matches`    | Suggest animals based on a person’s home type, activity level, and preferences. |
+
+---
+
+### ❌ Not-So-Great Examples
+
+| Tool Name         | Description        |
+|------------------|--------------------|
+| `list_animals`       | Shows animals.      |
+| `get_animal_by_id`   | Get pet stuff from ID. |
+| `adopt_pet`          | Do adoption.        |
+| `get_adoption_costs` | Costs.              |
+| `suggest_matches`    | Find good animal.   |
+
+---
+
+### 💡 Tips:
+- Use **clear verbs**: list, return, mark, suggest, look up  
+- Think: “How would I describe this tool in one sentence to another human?”
+- The model sees this — so make it *mcp-client-friendly*, not just code-friendly
+
+</details>
+<br>
+
+
+
+**Now let’s tell the tool what to do when your mcp client calls it.**
+
+In this case, we want to return the full list of animals from your service as a plain text string.
+
+Here’s what that looks like:
+```
+async () => ({
+  content: [{
+    type: "text",
+    text: JSON.stringify(this.animalRescueService.listAnimals())
+  }]
+})
+```
+This will:
+* Call your pre-built function `listAnimals()`
+* Convert the result into a readable JSON string
+* Return it as plain text, which your mcp client can read and use in its reply
+
+Paste that into your code where the following comment appears:
+
+`// We’ll add what the tool does in the next step — it will return a list of animals as plain text`
+
 
 
 <details>
