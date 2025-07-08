@@ -1,4 +1,4 @@
-# 🐾 Animal Rescue MCP Server Workshop - Typescript
+# 🐾 Animal Rescue MCP Server Workshop Overview
 
 Now that we've settled in, done some intros and learned some of the basic concepts, let's start the project work.
 
