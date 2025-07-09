@@ -32,44 +32,72 @@ Open your newly cloned repo in your IDE of choice and let's take a look at what'
 
 **📦 main.py Import Descriptions**
 ```python
-from mcp.server import FastMCP
+from mcp.server import Server
+from mcp.types import Tool, TextContent
 ```
-FastMCP is the main class from the MCP SDK that makes it easy to build your own MCP server. It handles all the complex protocol communication for you.
+* **Server**: The core MCP server class that handles protocol communication with Claude Desktop
+* **Tool**: Type definition for MCP tools with name, description, and input schema
+* **TextContent**: Type for structured text responses to tool calls
 
 ```python
-from .animal_rescue_service import AnimalRescueService, Animal, AdoptionCertificate
+from .animal_rescue_service import AnimalRescueService
 ```
 We've done some work to create the animal rescue service, so you're not creating it from scratch. Importing the following means we focus more on the MCP server setup and less about the animal rescue service creation!
 * **AnimalRescueService**: A helper class that contains all the logic for managing pets — listing them, looking them up, simulating adoptions, etc.
-* **Animal**: A TypedDict that describes what a valid animal object looks like (e.g., name, species, home requirements).
-* **AdoptionCertificate**: Another TypedDict — used for generating structured confirmation when a pet is adopted (e.g., timestamp, pickup location).
 
 #### 📥 How Your MCP Server Works (Python Implementation)
 
-In your `main.py`, you'll see the FastMCP server setup:
+In your `main.py`, you'll see the MCP server setup:
 
 ```python
-from mcp.server import FastMCP
+from mcp.server import Server
+from mcp.types import Tool, TextContent
 
-# Create FastMCP server instance
-app = FastMCP("Animal Rescue")
+# Create MCP server
+server = Server("animal-rescue")
 
 # Initialize the animal rescue service
 animal_rescue_service = AnimalRescueService()
 
-@app.tool()
-def list_animals() -> List[Animal]:
-    """List all available animals for adoption."""
-    return animal_rescue_service.list_animals()
+@server.list_tools()
+async def handle_list_tools() -> list[Tool]:
+    """List available tools."""
+    return [
+        Tool(
+            name="list_animals",
+            description="List all available animals for adoption",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+        # ... other tools
+    ]
+
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
+    """Handle tool execution requests."""
+    if name == "list_animals":
+        animals = animal_rescue_service.list_animals()
+        text = "Available animals for adoption:\n\n" + "\n".join([
+            f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
+            for animal in animals
+        ])
+        return [TextContent(type="text", text=text)]
 ```
 
 **🧠 What This Is Doing**
 
-This section creates your MCP server and registers tools using Python decorators. The FastMCP class handles all the protocol communication for you.
+This section creates your MCP server and registers tools using the official MCP protocol. The Server class handles all the protocol communication with Claude Desktop.
 
-**🔁 @app.tool() decorator**
+**🔁 @server.list_tools() decorator**
 
-This decorator automatically registers your Python function as an MCP tool. The function's docstring becomes the tool description, and the type hints define the input/output schema.
+This decorator registers a function that returns the list of available tools. Each tool has a name, description, and input schema.
+
+**🔁 @server.call_tool() decorator**
+
+This decorator handles actual tool execution. It receives the tool name and arguments, then returns structured TextContent responses.
 
 ### 3. 📦 Install dependencies
 
@@ -176,35 +204,97 @@ Hi! What tools do you have for animal rescue service?
 
 You should see the server respond with information about the available tools.
 
-### 8. 🛠️ Add Tool 1: list_animals
+### 8. 🛠️ Understanding Your Tools
 
-Let's examine your first tool — `list_animals` — which lets your MCP client request a list of all available pets.
+Let's examine your tools — which let your MCP client interact with the animal rescue system.
 
-This tool connects your MCP server to your animal data and makes it available to your client via tool-calling.
+📌 **Available Tools**
+* 🐾 **list_animals**: List all available animals for adoption
+* 🔍 **get_animal_by_id**: Get detailed information about a specific animal
+* 🔍 **get_animal_by_name**: Find an animal by name (case insensitive)
+* 💝 **adopt_pet**: Adopt a pet using either its ID or name
 
-📌 **What This Tool Does**
-* 🐾 **Name**: list_animals
-* 📝 **Description**: "List all available animals for adoption"
-* 📄 **Returns**: A list of Animal objects with all available pets 🐔
+🧠 **How Tools Are Defined**
 
-🧠 **Where Is This Tool Defined?**
+Look in your `main.py` file for the tool definitions:
 
-Look in your `main.py` file for the `@app.tool()` decorator:
-
+**1. Tool Registration (`@server.list_tools()`):**
 ```python
-@app.tool()
-def list_animals() -> List[Animal]:
-    """List all available animals for adoption."""
-    return animal_rescue_service.list_animals()
+@server.list_tools()
+async def handle_list_tools() -> list[Tool]:
+    return [
+        Tool(
+            name="list_animals",
+            description="List all available animals for adoption",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+        Tool(
+            name="adopt_pet",
+            description="Adopt a pet by its unique ID or name. If you provide a name, it will automatically find the corresponding ID.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "animal_id": {
+                        "type": "string", 
+                        "description": "The unique ID (e.g., 'dog-001', 'cat-001') or name (e.g., 'Max', 'Luna') of the animal to adopt."
+                    }
+                },
+                "required": ["animal_id"]
+            }
+        )
+    ]
+```
+
+**2. Tool Execution (`@server.call_tool()`):**
+```python
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
+    if name == "list_animals":
+        animals = animal_rescue_service.list_animals()
+        text = "Available animals for adoption:\n\n" + "\n".join([
+            f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
+            for animal in animals
+        ])
+        return [TextContent(type="text", text=text)]
+    
+    elif name == "adopt_pet":
+        animal_id = arguments.get("animal_id")
+        if not animal_id:
+            return [TextContent(type="text", text="Error: animal_id is required")]
+        
+        # Smart adoption: accepts both names and IDs
+        if not animal_id.startswith(('dog-', 'cat-', 'rabbit-')):
+            # Looks like a name, find the animal by name first
+            animal = animal_rescue_service.get_animal_by_name(animal_id)
+            if animal:
+                animal_id = animal['id']
+                text_note = f"Found '{arguments.get('animal_id')}' -> ID: {animal_id}\n\n"
+            else:
+                return [TextContent(type="text", text=f"No animal found with name or ID: {arguments.get('animal_id')}")]
+        else:
+            text_note = ""
+        
+        certificate = animal_rescue_service.adopt_animal(animal_id)
+        if certificate:
+            text = (f"{text_note}🎉 Adoption successful!\n\n"
+                   f"Adoption Certificate:\n"
+                   f"Animal ID: {certificate['animal_id']}\n"
+                   f"Adoption Date: {certificate['timestamp']}\n"
+                   f"Pickup Location: {certificate['pickup_location']}\n\n"
+                   f"Congratulations on your new pet!")
+            return [TextContent(type="text", text=text)]
 ```
 
 **Let's break this down:**
 
-1. **@app.tool()**: This decorator registers the function as an MCP tool
-2. **Function name**: `list_animals` becomes the tool name
-3. **Docstring**: "List all available animals for adoption." becomes the tool description
-4. **Type hints**: `List[Animal]` defines the return type schema
-5. **Function body**: Calls the service method and returns the result
+1. **Tool Registration**: Each tool is defined with a name, description, and input schema
+2. **Tool Execution**: The `handle_call_tool` function receives the tool name and arguments
+3. **Smart Features**: The `adopt_pet` tool accepts both animal names and IDs
+4. **Structured Response**: All tools return `TextContent` objects with formatted text
 
 **🤔 Understanding Tool Descriptions**
 
@@ -250,56 +340,221 @@ Picking the right description for your tool helps your MCP client know when (and
 
 <br>
 
-**🔍 How the Tool Works**
+**🔍 How the Tools Work**
 
-When your MCP client calls `list_animals`, here's what happens:
+When your MCP client calls a tool, here's what happens:
 
 1. **Client request**: "Can you list all the animals available for adoption?"
 2. **MCP server**: Recognizes this matches the `list_animals` tool
 3. **Tool execution**: Calls `animal_rescue_service.list_animals()`
-4. **Data processing**: Returns a list of Animal objects (filtered for non-adopted pets)
-5. **Client response**: Receives the structured data and formats it for the user
+4. **Data processing**: Formats the data into a user-friendly text response
+5. **Client response**: Receives the `TextContent` and displays it to the user
+
+**🎯 Special Feature: Smart Adoption**
+
+The `adopt_pet` tool is particularly smart — it accepts both names and IDs:
+- Input: `{"animal_id": "Max"}` → Automatically finds Max's ID (dog-001) and adopts
+- Input: `{"animal_id": "dog-001"}` → Directly adopts using the ID
 
 <details>
-<summary>🆘 Break Glass Code: Complete list_animals implementation</summary>
+<summary>🆘 Break Glass Code: Complete MCP server implementation</summary>
 
 ```python
-from typing import List, Optional
-from mcp.server import FastMCP
-from .animal_rescue_service import AnimalRescueService, Animal, AdoptionCertificate
+#!/usr/bin/env python3
+"""Simple MCP server for Animal Rescue - following exact MCP patterns."""
 
-# Create FastMCP server instance
-app = FastMCP("Animal Rescue")
+import asyncio
+from typing import Any, Dict, Sequence
+
+from mcp.server import Server
+from mcp.types import Tool, TextContent
+from .animal_rescue_service import AnimalRescueService
 
 # Initialize the animal rescue service
 animal_rescue_service = AnimalRescueService()
 
-@app.tool()
-def list_animals() -> List[Animal]:
-    """List all available animals for adoption."""
-    return animal_rescue_service.list_animals()
+# Create MCP server
+server = Server("animal-rescue")
 
-def main() -> None:
-    """Main entry point for the MCP server."""
-    print("Animal Rescue MCP Server initialized")
-    print("Available tools:")
-    print("- list_animals: List all available animals for adoption")
+@server.list_tools()
+async def handle_list_tools() -> list[Tool]:
+    """List available tools."""
+    return [
+        Tool(
+            name="list_animals",
+            description="List all available animals for adoption",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+        Tool(
+            name="get_animal_by_id", 
+            description="Get an animal by its ID",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "animal_id": {
+                        "type": "string",
+                        "description": "The ID of the animal to retrieve"
+                    }
+                },
+                "required": ["animal_id"]
+            }
+        ),
+        Tool(
+            name="get_animal_by_name",
+            description="Get an animal by its name (case insensitive)",
+            inputSchema={
+                "type": "object", 
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the animal to search for"
+                    }
+                },
+                "required": ["name"]
+            }
+        ),
+        Tool(
+            name="adopt_pet",
+            description="Adopt a pet by its unique ID or name. If you provide a name, it will automatically find the corresponding ID.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "animal_id": {
+                        "type": "string", 
+                        "description": "The unique ID (e.g., 'dog-001', 'cat-001') or name (e.g., 'Max', 'Luna') of the animal to adopt."
+                    }
+                },
+                "required": ["animal_id"]
+            }
+        )
+    ]
+
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
+    """Handle tool execution requests."""
+    if name == "list_animals":
+        animals = animal_rescue_service.list_animals()
+        text = "Available animals for adoption:\n\n" + "\n".join([
+            f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
+            for animal in animals
+        ])
+        return [TextContent(type="text", text=text)]
+    
+    elif name == "get_animal_by_id":
+        animal_id = arguments.get("animal_id")
+        if not animal_id:
+            return [TextContent(type="text", text="Error: animal_id is required")]
+        
+        animal = animal_rescue_service.get_animal_by_id(animal_id)
+        if animal:
+            text = (f"Animal Details:\n\n"
+                   f"Name: {animal['name']}\n"
+                   f"Species: {animal['species']}\n"
+                   f"Breed: {animal['breed']}\n"
+                   f"Age: {animal['age']} years\n"
+                   f"Adoption fee: ${animal['adoption_fee']}")
+            return [TextContent(type="text", text=text)]
+        else:
+            return [TextContent(type="text", text=f"No animal found with ID: {animal_id}")]
+    
+    elif name == "get_animal_by_name":
+        animal_name = arguments.get("name")
+        if not animal_name:
+            return [TextContent(type="text", text="Error: name is required")]
+        
+        animal = animal_rescue_service.get_animal_by_name(animal_name)
+        if animal:
+            text = (f"Found animal: {animal['name']}\n"
+                   f"Species: {animal['species']}\n"
+                   f"Breed: {animal['breed']}\n"
+                   f"Age: {animal['age']} years\n"
+                   f"Adoption fee: ${animal['adoption_fee']}")
+            return [TextContent(type="text", text=text)]
+        else:
+            return [TextContent(type="text", text=f"No animal found with name: {animal_name}")]
+    
+    elif name == "adopt_pet":
+        animal_id = arguments.get("animal_id")
+        if not animal_id:
+            return [TextContent(type="text", text="Error: animal_id is required")]
+        
+        # Smart adoption: accepts both names and IDs
+        if not animal_id.startswith(('dog-', 'cat-', 'rabbit-')):
+            animal = animal_rescue_service.get_animal_by_name(animal_id)
+            if animal:
+                animal_id = animal['id']
+                text_note = f"Found '{arguments.get('animal_id')}' -> ID: {animal_id}\n\n"
+            else:
+                return [TextContent(type="text", text=f"No animal found with name or ID: {arguments.get('animal_id')}")]
+        else:
+            text_note = ""
+        
+        certificate = animal_rescue_service.adopt_animal(animal_id)
+        if certificate:
+            text = (f"{text_note}🎉 Adoption successful!\n\n"
+                   f"Adoption Certificate:\n"
+                   f"Animal ID: {certificate['animal_id']}\n"
+                   f"Adoption Date: {certificate['timestamp']}\n"
+                   f"Pickup Location: {certificate['pickup_location']}\n\n"
+                   f"Congratulations on your new pet!")
+            return [TextContent(type="text", text=text)]
+        else:
+            return [TextContent(type="text", text=f"Unable to adopt animal with ID: {animal_id}. Animal may not exist or may already be adopted.")]
+    
+    else:
+        return [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+async def main():
+    """Run the server using stdin/stdout streams."""
+    from mcp.server.stdio import stdio_server
+    
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(
+            read_stream, 
+            write_stream, 
+            server.create_initialization_options()
+        )
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
 ```
 
 </details>
 
 ### 9. 🧪 Test It Out
 
-Now open Claude Desktop (or your MCP client) and type:
+Now open Claude Desktop (or your MCP client) and try these commands:
 
+**List all animals:**
 ```
 Can you list all the animals available for adoption?
 ```
 
-Claude should call your tool and reply with a list of pets! 🎉
+**Get animal details:**
+```
+Can you get details for animal ID dog-001?
+```
+
+**Find an animal by name:**
+```
+Can you find an animal named Max?
+```
+
+**Adopt a pet (using name):**
+```
+I want to adopt Max
+```
+
+**Adopt a pet (using ID):**
+```
+I want to adopt animal ID cat-001
+```
+
+Claude should call your tools and reply with helpful information! 🎉
 
 <details>
 <summary>🐞 Common Errors + Debugging Tips</summary>
