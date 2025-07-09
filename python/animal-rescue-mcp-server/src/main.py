@@ -14,8 +14,7 @@ animal_rescue_service = AnimalRescueService()
 # Create MCP server
 server = Server("animal-rescue")
 
-@server.list_tools()
-async def handle_list_tools() -> list[Tool]:
+async def list_tools() -> list[Tool]:
     """
     List available tools.
     Each tool specifies its name, description, and input schema.
@@ -75,11 +74,13 @@ async def handle_list_tools() -> list[Tool]:
     ]
 
 
-@server.call_tool()
-async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
+async def call_tool(name: str, arguments: Dict[str, Any] | None) -> Sequence[TextContent]:
     """
     Handle tool execution requests.
     """
+    if arguments is None:
+        arguments = {}
+    
     if name == "list_animals":
         animals = animal_rescue_service.list_animals()
         text = "Available animals for adoption:\\n\\n" + "\\n".join([
@@ -163,6 +164,11 @@ async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[Tex
     
     else:
         return [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+
+# Register the functions with the server
+server.list_tools()(list_tools)
+server.call_tool()(call_tool)
 
 
 async def main():

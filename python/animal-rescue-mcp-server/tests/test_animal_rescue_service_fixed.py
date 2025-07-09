@@ -5,6 +5,7 @@ from datetime import datetime
 from src.animal_rescue_service import AnimalRescueService, Animal, AdoptionCertificate
 
 
+@pytest.mark.unit
 class TestAnimalRescueService:
     """Test suite for AnimalRescueService class."""
 
@@ -199,6 +200,7 @@ class TestAnimalRescueService:
             assert name in animal_names
 
 
+@pytest.mark.integration
 class TestAnimalRescueServiceIntegration:
     """Integration tests for AnimalRescueService."""
 

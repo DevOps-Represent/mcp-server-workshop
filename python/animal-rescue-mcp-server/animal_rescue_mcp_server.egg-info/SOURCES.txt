@@ -10,3 +10,6 @@ src/__init__.py
 src/animal_data.py
 src/animal_rescue_service.py
 src/main.py
+tests/test_animal_rescue_service.py
+tests/test_animal_rescue_service_fixed.py
+tests/test_mcp_server.py
