@@ -249,4 +249,38 @@ Your prompt is your agent's operating system — tweak it and test!
 
 🎉 Great job on getting this far!! 
 
+### 🚀 Advanced: HTTP Deployment for Web Clients
+
+If you want to use your MCP server with web-based clients like the Cloudflare AI Playground, you'll need to wrap it in an HTTP server:
+
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
+# Create FastAPI wrapper
+web_app = FastAPI()
+
+# Add CORS middleware
+web_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://playground.ai.cloudflare.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@web_app.post("/mcp")
+async def mcp_endpoint(request: dict):
+    """Handle MCP protocol over HTTP."""
+    # Process MCP request and return response
+    # This requires additional implementation
+    pass
+
+if __name__ == "__main__":
+    uvicorn.run(web_app, host="0.0.0.0", port=8000)
+```
+
+---
+
 ## Let's try this as a hosted option using Cloudflare!

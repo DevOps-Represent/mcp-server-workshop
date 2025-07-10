@@ -145,31 +145,8 @@ For local development, you'll need to configure Claude Desktop to connect to you
 }
 ```
 
-#### Option 2: Cloudflare AI Playground (Hosted)
 
-For the Cloudflare AI Playground, you'll need to deploy your MCP server as a web service:
-
-1. **Deploy to a hosting service** (like Railway, Heroku, or Cloudflare Workers)
-2. **Configure your server** to handle HTTP requests instead of stdio
-3. **Add HTTP endpoints** for MCP protocol communication
-4. **Use the hosted URL** in the Cloudflare playground
-
-**Example HTTP wrapper for FastMCP:**
-```python
-from fastapi import FastAPI
-from mcp.server import FastMCP
-
-# Create both FastAPI and FastMCP instances
-web_app = FastAPI()
-mcp_app = FastMCP("Animal Rescue")
-
-@web_app.post("/mcp")
-async def mcp_endpoint(request: dict):
-    # Handle MCP protocol over HTTP
-    return await mcp_app.handle_request(request)
-```
-
-#### Option 3: Testing with MCP Client Libraries
+#### Option 2: Testing with MCP Client Libraries
 
 You can also test your server programmatically:
 
@@ -570,39 +547,6 @@ Claude should call your tools and reply with helpful information! 🎉
 
 </details>
 
-### 10. 🚀 Advanced: HTTP Deployment for Web Clients
-
-If you want to use your MCP server with web-based clients like the Cloudflare AI Playground, you'll need to wrap it in an HTTP server:
-
-```python
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
-# Create FastAPI wrapper
-web_app = FastAPI()
-
-# Add CORS middleware
-web_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://playground.ai.cloudflare.com"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@web_app.post("/mcp")
-async def mcp_endpoint(request: dict):
-    """Handle MCP protocol over HTTP."""
-    # Process MCP request and return response
-    # This requires additional implementation
-    pass
-
-if __name__ == "__main__":
-    uvicorn.run(web_app, host="0.0.0.0", port=8000)
-```
-
----
 
 Nice work on getting this far! Now that we've created our first tool, let's embed that knowledge further and create some more tools in Part 2!
 
