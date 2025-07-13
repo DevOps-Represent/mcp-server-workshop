@@ -4,7 +4,7 @@ import pytest
 import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock
-from src.main import server, call_tool, list_tools
+from src.main import call_tool, list_tools
 
 
 @pytest.mark.integration

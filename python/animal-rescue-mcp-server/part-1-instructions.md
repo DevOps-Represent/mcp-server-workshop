@@ -1,8 +1,8 @@
-# 🐾 Part 1: MCP Server Workshop: Animal Rescue Edition (Python)
+# 🐾 Part 1: MCP Server Workshop: Animal Rescue Edition (Python with FastMCP)
 
 Welcome! In this workshop, we'll explore what an MCP server is, how it connects to AI models like Claude, and how to use tools and prompts to build a smart backend — all while helping match humans with adoptable pets 🐕🐍🐔
 
-You'll be using the **Python MCP SDK**, but don't worry — this workshop is about understanding **how MCP servers work**, not mastering every line of code.
+You'll be using the **fastMCP** framework, which makes building MCP servers simple and intuitive. Don't worry — this workshop is about understanding **how MCP servers work**, not mastering every line of code.
 
 ---
 
@@ -32,12 +32,9 @@ Open your newly cloned repo in your IDE of choice and let's take a look at what'
 
 **📦 main.py Import Descriptions**
 ```python
-from mcp.server import Server
-from mcp.types import Tool, TextContent
+from fastmcp import FastMCP
 ```
-* **Server**: The core MCP server class that handles protocol communication with Claude Desktop
-* **Tool**: Type definition for MCP tools with name, description, and input schema
-* **TextContent**: Type for structured text responses to tool calls
+* **FastMCP**: The core framework that makes creating MCP servers incredibly simple with decorators
 
 ```python
 from .animal_rescue_service import AnimalRescueService
@@ -45,59 +42,65 @@ from .animal_rescue_service import AnimalRescueService
 We've done some work to create the animal rescue service, so you're not creating it from scratch. Importing the following means we focus more on the MCP server setup and less about the animal rescue service creation!
 * **AnimalRescueService**: A helper class that contains all the logic for managing pets — listing them, looking them up, simulating adoptions, etc.
 
-#### 📥 How Your MCP Server Works (Python Implementation)
+#### 📥 How Your MCP Server Works (FastMCP Implementation)
 
-In your `main.py`, you'll see the MCP server setup:
+In your `main.py`, you'll see the FastMCP server setup:
 
 ```python
-from mcp.server import Server
-from mcp.types import Tool, TextContent
+from fastmcp import FastMCP
 
-# Create MCP server
-server = Server("animal-rescue")
+# Create fastMCP server
+mcp = FastMCP("Animal Rescue 🐾")
 
 # Initialize the animal rescue service
 animal_rescue_service = AnimalRescueService()
 
-@server.list_tools()
-async def handle_list_tools() -> list[Tool]:
-    """List available tools."""
-    return [
-        Tool(
-            name="list_animals",
-            description="List all available animals for adoption",
-            inputSchema={
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-        ),
-        # ... other tools
-    ]
+@mcp.tool()
+def list_animals() -> str:
+    """List all available animals for adoption."""
+    animals = animal_rescue_service.list_animals()
+    text = "Available animals for adoption:\n\n" + "\n".join([
+        f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
+        for animal in animals
+    ])
+    return text
 
-@server.call_tool()
-async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
-    """Handle tool execution requests."""
-    if name == "list_animals":
-        animals = animal_rescue_service.list_animals()
-        text = "Available animals for adoption:\n\n" + "\n".join([
-            f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
-            for animal in animals
-        ])
-        return [TextContent(type="text", text=text)]
+@mcp.tool()
+def get_animal_by_id(animal_id: str) -> str:
+    """Get an animal by its ID.
+    
+    Args:
+        animal_id: The ID of the animal to retrieve
+    """
+    animal = animal_rescue_service.get_animal_by_id(animal_id)
+    if animal:
+        return f"Animal Details:\n\nName: {animal['name']}\nSpecies: {animal['species']}\n..."
+    else:
+        return f"No animal found with ID: {animal_id}"
+
+def main():
+    """Main entry point for the MCP server."""
+    mcp.run()
 ```
 
 **🧠 What This Is Doing**
 
-This section creates your MCP server and registers tools using the official MCP protocol. The Server class handles all the protocol communication with Claude Desktop.
+FastMCP makes creating MCP servers incredibly simple! Just decorate your Python functions with `@mcp.tool()` and FastMCP handles all the protocol details automatically.
 
-**🔁 @server.list_tools() decorator**
+**🔁 @mcp.tool() decorator**
 
-This decorator registers a function that returns the list of available tools. Each tool has a name, description, and input schema.
+This decorator automatically converts your Python functions into MCP tools. FastMCP automatically generates:
+- Tool descriptions from your function docstrings
+- Input schemas from your type hints
+- Proper MCP protocol responses
 
-**🔁 @server.call_tool() decorator**
+**🚀 Automatic Features**
 
-This decorator handles actual tool execution. It receives the tool name and arguments, then returns structured TextContent responses.
+FastMCP provides out-of-the-box:
+- Type validation
+- Error handling
+- Protocol compliance
+- Schema generation
 
 ### 3. 📦 Install dependencies
 

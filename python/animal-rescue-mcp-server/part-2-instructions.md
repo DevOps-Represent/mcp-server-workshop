@@ -1,4 +1,4 @@
-# 🧠 Part 2: More Tools & Prompt Engineering
+# 🧠 Part 2: More Tools & Prompt Engineering (FastMCP)
 
 Now let's build out more of your MCP agent's capabilities! In this section, we're going to create the following tools:
 * 🏷️ get_animal_by_id 
@@ -13,40 +13,20 @@ This tool lets Claude fetch a specific animal based on its ID.
 * Tool name: get_animal_by_id
 * Input: an animal_id (like "cat-002")
 * Output: details about a single animal (or error message if not found)
-* Where to add it: In the `handle_list_tools()` function and `handle_call_tool()` function
+* Implementation: Simple function decorated with `@mcp.tool()`
 
-**Add the tool definition to handle_list_tools()**
+**Add the tool function**
 
-In your `handle_list_tools()` function, add this new tool to the list:
-
-‼️ Remember to put a great tool description ‼️
-```python
-Tool(
-    name="get_animal_by_id", 
-    description="Get an animal by its ID, only use this if you know the exact ID of the animal",
-    inputSchema={
-        "type": "object",
-        "properties": {
-            "animal_id": {
-                "type": "string",
-                "description": "The ID of the animal to retrieve"
-            }
-        },
-        "required": ["animal_id"]
-    }
-)
-```
-
-**Add the tool handling logic**
-
-In your `handle_call_tool()` function, add this elif block:
+With FastMCP, creating a new tool is incredibly simple. Just add this function to your `main.py`:
 
 ```python
-elif name == "get_animal_by_id":
-    animal_id = arguments.get("animal_id")
-    if not animal_id:
-        return [TextContent(type="text", text="Error: animal_id is required")]
+@mcp.tool()
+def get_animal_by_id(animal_id: str) -> str:
+    """Get an animal by its ID.
     
+    Args:
+        animal_id: The ID of the animal to retrieve
+    """
     animal = animal_rescue_service.get_animal_by_id(animal_id)
     if animal:
         text = (f"Animal Details:\n\n"
@@ -65,25 +45,32 @@ elif name == "get_animal_by_id":
                f"Energy level: {animal['energy_level']}\n"
                f"Adoption fee: ${animal['adoption_fee']}\n"
                f"Date arrived: {animal['date_arrived']}")
-        return [TextContent(type="text", text=text)]
+        return text
     else:
-        return [TextContent(type="text", text=f"No animal found with ID: {animal_id}")]
+        return f"No animal found with ID: {animal_id}"
 ```
 
+**🚀 FastMCP Magic**
+
+Notice how FastMCP automatically:
+- Creates the tool schema from the function signature
+- Uses the docstring as the tool description
+- Handles parameter validation
+- No need for manual tool registration!
 Test with a prompt like:
 "Can you show me the details for animal with ID cat-002?"
 
 <details>
 <summary>🐞 Common Errors + Debugging Tips</summary>
 
-* ❌ TextContent is not defined
-    * Make sure you're importing it: `from mcp.types import Tool, TextContent`
+* ❌ fastmcp not found
+    * Make sure you've installed it: `pip install fastmcp`
 * ❌ animal_rescue_service is not defined
     * Check that it's initialized at the top of the file
 * ❌ No result or empty response?
     * Confirm that the ID you're testing actually exists in the dataset (check `animal_data.py`)
 * ❌ Claude/client says "no tools available"?
-    * Make sure the tool is added to the list in `handle_list_tools()`
+    * Make sure your function is decorated with `@mcp.tool()`
 
 </details>
 
@@ -95,40 +82,21 @@ Same idea, but matching by name.
 * Tool name: get_animal_by_name
 * Input: the name of the animal (like "Charlie")
 * Output: the animal's full info if found, or error message if it doesn't exist
-* Where to add it: In both `handle_list_tools()` and `handle_call_tool()` functions
+* Implementation: Another simple decorated function
 
-**Add the tool definition to handle_list_tools()**
+**Add the tool function**
 
-Add this tool to your tools list:
-‼️ Remember to put a great tool description ‼️
-```python
-Tool(
-    name="get_animal_by_name",
-    description="Find an animal by name, only use this if you know the name of the animal",
-    inputSchema={
-        "type": "object", 
-        "properties": {
-            "name": {
-                "type": "string",
-                "description": "The name of the animal to search for"
-            }
-        },
-        "required": ["name"]
-    }
-)
-```
-
-**Add the tool handling logic**
-
-Add this elif block to your `handle_call_tool()` function:
+Add this function to your `main.py`:
 
 ```python
-elif name == "get_animal_by_name":
-    animal_name = arguments.get("name")
-    if not animal_name:
-        return [TextContent(type="text", text="Error: name is required")]
+@mcp.tool()
+def get_animal_by_name(name: str) -> str:
+    """Get an animal by its name (case insensitive).
     
-    animal = animal_rescue_service.get_animal_by_name(animal_name)
+    Args:
+        name: The name of the animal to search for
+    """
+    animal = animal_rescue_service.get_animal_by_name(name)
     if animal:
         text = (f"Found animal: {animal['name']}\n"
                f"Species: {animal['species']}\n"
@@ -136,9 +104,9 @@ elif name == "get_animal_by_name":
                f"Age: {animal['age']} years\n"
                f"Description: {animal['description']}\n"
                f"Adoption fee: ${animal['adoption_fee']}")
-        return [TextContent(type="text", text=text)]
+        return text
     else:
-        return [TextContent(type="text", text=f"No animal found with name: {animal_name}")]
+        return f"No animal found with name: {name}"
 ```
 
 Test with a prompt like:
@@ -161,49 +129,32 @@ This tool builds on what you've done before, but introduces:
 - Error handling for missing or already adopted animals
 - Support for adopting by name or ID
 
-**Add the tool definition to handle_list_tools()**
+**Add the tool function**
 
-Add this tool to your tools list:
-```python
-Tool(
-    name="adopt_pet",
-    description="Adopt a pet by its unique ID or name. If you provide a name, it will automatically find the corresponding ID.",
-    inputSchema={
-        "type": "object",
-        "properties": {
-            "animal_id": {
-                "type": "string", 
-                "description": "The unique ID (e.g., 'dog-001', 'cat-001') or name (e.g., 'Max', 'Luna') of the animal to adopt."
-            }
-        },
-        "required": ["animal_id"]
-    }
-)
-```
-
-**Add the tool handling logic**
-
-Add this elif block to your `handle_call_tool()` function:
+Add this function to your `main.py`:
 
 ```python
-elif name == "adopt_pet":
-    animal_id = arguments.get("animal_id")
-    if not animal_id:
-        return [TextContent(type="text", text="Error: animal_id is required")]
+@mcp.tool()
+def adopt_pet(animal_id: str) -> str:
+    """Adopt a pet by its unique ID or name.
     
+    Args:
+        animal_id: The unique ID (e.g., 'dog-001', 'cat-001') or name (e.g., 'Max', 'Luna') of the animal to adopt
+    """
     # Check if the provided ID is actually a name, and convert it to ID
     if not animal_id.startswith(('dog-', 'cat-', 'rabbit-')):
         # Looks like a name, try to find the animal by name first
         animal = animal_rescue_service.get_animal_by_name(animal_id)
         if animal:
-            animal_id = animal['id']
-            text_note = f"Found '{arguments.get('animal_id')}' -> ID: {animal_id}\n\n"
+            actual_animal_id = animal['id']
+            text_note = f"Found '{animal_id}' -> ID: {actual_animal_id}\n\n"
         else:
-            return [TextContent(type="text", text=f"No animal found with name or ID: {arguments.get('animal_id')}")]
+            return f"No animal found with name or ID: {animal_id}"
     else:
+        actual_animal_id = animal_id
         text_note = ""
     
-    certificate = animal_rescue_service.adopt_animal(animal_id)
+    certificate = animal_rescue_service.adopt_animal(actual_animal_id)
     if certificate:
         text = (f"{text_note}🎉 Adoption successful!\n\n"
                f"Adoption Certificate:\n"
@@ -211,10 +162,12 @@ elif name == "adopt_pet":
                f"Adoption Date: {certificate['timestamp']}\n"
                f"Pickup Location: {certificate['pickup_location']}\n\n"
                f"Congratulations on your new pet!")
-        return [TextContent(type="text", text=text)]
+        return text
     else:
-        return [TextContent(type="text", text=f"Unable to adopt animal with ID: {animal_id}. Animal may not exist or may already be adopted.")]
+        return f"Unable to adopt animal with ID: {actual_animal_id}. Animal may not exist or may already be adopted."
 ```
+
+
 
 Test with a prompt like:
 "Adopt Cocoa"
