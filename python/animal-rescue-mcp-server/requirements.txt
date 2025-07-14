@@ -1,2 +1,7 @@
-fastmcp>=0.1.0
+# This project uses uv for dependency management.
+# To install dependencies, run: uv sync
+# To install with dev dependencies: uv sync --dev
+# 
+# For compatibility with pip, the core dependencies are:
+mcp>=1.0.0
 pydantic>=2.0.0

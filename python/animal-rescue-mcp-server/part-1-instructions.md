@@ -32,9 +32,9 @@ Open your newly cloned repo in your IDE of choice and let's take a look at what'
 
 **📦 main.py Import Descriptions**
 ```python
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 ```
-* **FastMCP**: The core framework that makes creating MCP servers incredibly simple with decorators
+* **FastMCP**: The core framework from the official MCP Python SDK that makes creating MCP servers incredibly simple with decorators
 
 ```python
 from .animal_rescue_service import AnimalRescueService
@@ -47,7 +47,7 @@ We've done some work to create the animal rescue service, so you're not creating
 In your `main.py`, you'll see the FastMCP server setup:
 
 ```python
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 
 # Create fastMCP server
 mcp = FastMCP("Animal Rescue 🐾")
@@ -102,40 +102,80 @@ FastMCP provides out-of-the-box:
 - Protocol compliance
 - Schema generation
 
-### 3. 📦 Install dependencies
+### 3. 📦 Install dependencies with uv
 
-Install the required packages to run your MCP server locally:
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-### 4. 📦 Install in development mode (optional)
-
-For development, install the package in editable mode:
+This project uses **uv** for fast, reliable dependency management. Install dependencies:
 
 ```bash
-python3 -m pip install -e .
+# Install all runtime dependencies
+uv sync
+
+# Install with development dependencies (recommended)
+uv sync --dev
 ```
 
-### 5. ▶️ Start your server
+**🚀 Why uv?**
+- ⚡ 10-100x faster than pip
+- 🔒 Automatic lock file management (uv.lock)
+- 🐍 Python version management
+- 📦 Virtual environment handling
+
+### 4. ▶️ Start your server
+
+With uv, you can run the server in multiple ways:
 
 ```bash
-python3 -m src.main
+# Recommended: Use uv run to ensure correct environment
+uv run python -m src.main
+
+# Or use the script entry point
+uv run animal-rescue-mcp
+
+# Alternative: Manual virtual environment activation
+source .venv/bin/activate
+python -m src.main
 ```
 
-You should see your MCP server initializing with a list of available tools.
+You should see your FastMCP server starting with a beautiful banner!
 
-### 6. 🔌 Connect your MCP client
+### 5. 🔌 Connect your MCP client
 
-#### Option 1: Claude Desktop (Local Development)
+#### Option 1: Claude Desktop (Recommended with uv)
 
-For local development, you'll need to configure Claude Desktop to connect to your MCP server via stdio:
+For local development, configure Claude Desktop to use uv for reliable execution:
 
 1. Open Claude Desktop
 2. Go to Settings > Developer
 3. Add MCP server configuration:
 
+```json
+{
+  "mcpServers": {
+    "animal-rescue": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "src.main"],
+      "cwd": "/path/to/your/mcp-server-workshop/python/animal-rescue-mcp-server"
+    }
+  }
+}
+```
+
+**Alternative configurations:**
+
+Using script entry point:
+```json
+{
+  "mcpServers": {
+    "animal-rescue": {
+      "command": "uv", 
+      "args": ["run", "animal-rescue-mcp"],
+      "cwd": "/path/to/your/mcp-server-workshop/python/animal-rescue-mcp-server"
+    }
+  }
+}
+```
+
+Using direct Python (less reliable):
 ```json
 {
   "mcpServers": {
@@ -149,32 +189,41 @@ For local development, you'll need to configure Claude Desktop to connect to you
 ```
 
 
-#### Option 2: Testing with MCP Client Libraries
+#### Option 2: Testing with uv and pytest
 
-You can also test your server programmatically:
+You can test your server using the built-in test suite:
 
-```python
-import asyncio
-from mcp.client import ClientSession
+```bash
+# Run all tests
+uv run pytest
 
-async def test_server():
-    async with ClientSession() as session:
-        # Connect to your server
-        await session.connect("python3", ["-m", "src.main"])
-        
-        # List available tools
-        tools = await session.list_tools()
-        print(f"Available tools: {tools}")
-        
-        # Call a tool
-        result = await session.call_tool("list_animals", {})
-        print(f"Animals: {result}")
+# Run with coverage
+uv run pytest --cov=src
 
-# Run the test
-asyncio.run(test_server())
+# Run specific test categories
+uv run pytest -m unit        # Unit tests only
+uv run pytest -m integration # Integration tests only  
+uv run pytest -m slow        # Performance tests only
+
+# Run tests with verbose output
+uv run pytest -v
 ```
 
-### 7. 🧪 Test your connection
+#### Option 3: Development Tools with uv
+
+```bash
+# Format code
+uv run black .
+uv run isort .
+
+# Type checking
+uv run mypy src/
+
+# Run server for debugging
+uv run python -m src.main
+```
+
+### 6. 🧪 Test your connection
 
 Try the following prompt in your MCP client:
 
@@ -184,7 +233,7 @@ Hi! What tools do you have for animal rescue service?
 
 You should see the server respond with information about the available tools.
 
-### 8. 🛠️ Understanding Your Tools
+### 7. 🛠️ Understanding Your FastMCP Tools
 
 Let's examine your tools — which let your MCP client interact with the animal rescue system.
 
@@ -194,60 +243,59 @@ Let's examine your tools — which let your MCP client interact with the animal 
 * 🔍 **get_animal_by_name**: Find an animal by name (case insensitive)
 * 💝 **adopt_pet**: Adopt a pet using either its ID or name
 
-🧠 **How Tools Are Defined**
+🧠 **How FastMCP Tools Are Defined**
 
-Look in your `main.py` file for the tool definitions:
+Look in your `main.py` file for the FastMCP tool definitions:
 
-**1. Tool Registration (`@server.list_tools()`):**
+**1. Simple Tool Registration with `@mcp.tool()`:**
 ```python
-@server.list_tools()
-async def handle_list_tools() -> list[Tool]:
-    return [
-        Tool(
-            name="list_animals",
-            description="List all available animals for adoption",
-            inputSchema={
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-        ),
-        Tool(
-            name="adopt_pet",
-            description="Adopt a pet by its unique ID or name. If you provide a name, it will automatically find the corresponding ID.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "animal_id": {
-                        "type": "string", 
-                        "description": "The unique ID (e.g., 'dog-001', 'cat-001') or name (e.g., 'Max', 'Luna') of the animal to adopt."
-                    }
-                },
-                "required": ["animal_id"]
-            }
-        )
-    ]
+@mcp.tool()
+def list_animals() -> str:
+    """List all available animals for adoption."""
+    animals = animal_rescue_service.list_animals()
+    text = "Available animals for adoption:\n\n" + "\n".join([
+        f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
+        for animal in animals
+    ])
+    return text
 ```
 
-**2. Tool Execution (`@server.call_tool()`):**
+**2. Tool with Parameters (`@mcp.tool()`):**
 ```python
-@server.call_tool()
-async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> Sequence[TextContent]:
-    if name == "list_animals":
-        animals = animal_rescue_service.list_animals()
-        text = "Available animals for adoption:\n\n" + "\n".join([
-            f"• {animal['name']} ({animal['species']}) - {animal['breed']}, Age: {animal['age']}"
-            for animal in animals
-        ])
-        return [TextContent(type="text", text=text)]
+@mcp.tool()
+def get_animal_by_id(animal_id: str) -> str:
+    """Get an animal by its ID.
     
-    elif name == "adopt_pet":
-        animal_id = arguments.get("animal_id")
-        if not animal_id:
-            return [TextContent(type="text", text="Error: animal_id is required")]
-        
-        # Smart adoption: accepts both names and IDs
-        if not animal_id.startswith(('dog-', 'cat-', 'rabbit-')):
+    Args:
+        animal_id: The ID of the animal to retrieve
+    """
+    animal = animal_rescue_service.get_animal_by_id(animal_id)
+    if animal:
+        return f"Animal Details:\n\nName: {animal['name']}\nSpecies: {animal['species']}..."
+    else:
+        return f"No animal found with ID: {animal_id}"
+```
+
+**🚀 FastMCP Magic**
+
+FastMCP automatically:
+- ✨ **Generates schemas** from your type hints
+- 📝 **Uses docstrings** as tool descriptions  
+- 🔍 **Validates parameters** automatically
+- 🎯 **Handles errors** gracefully
+- 📊 **No manual registration** needed
+
+**3. Smart Tool Logic:**
+```python
+@mcp.tool()
+def adopt_pet(animal_id: str) -> str:
+    """Adopt a pet by its unique ID or name.
+    
+    Args:
+        animal_id: The unique ID or name of the animal to adopt
+    """
+    # Smart adoption: accepts both names and IDs
+    if not animal_id.startswith(('dog-', 'cat-', 'rabbit-')):
             # Looks like a name, find the animal by name first
             animal = animal_rescue_service.get_animal_by_name(animal_id)
             if animal:

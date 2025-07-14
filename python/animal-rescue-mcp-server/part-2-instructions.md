@@ -60,17 +60,30 @@ Notice how FastMCP automatically:
 Test with a prompt like:
 "Can you show me the details for animal with ID cat-002?"
 
+**🧪 Testing with uv:**
+```bash
+# Test the server
+uv run python -m src.main
+
+# Run the test suite
+uv run pytest -v
+
+# Test specific functionality
+uv run pytest -k "test_get_animal_by_id" -v
+```
+
 <details>
 <summary>🐞 Common Errors + Debugging Tips</summary>
 
-* ❌ fastmcp not found
-    * Make sure you've installed it: `pip install fastmcp`
+* ❌ mcp.server.fastmcp not found
+    * Run: `uv sync --dev` to install dependencies
 * ❌ animal_rescue_service is not defined
     * Check that it's initialized at the top of the file
 * ❌ No result or empty response?
     * Confirm that the ID you're testing actually exists in the dataset (check `animal_data.py`)
 * ❌ Claude/client says "no tools available"?
     * Make sure your function is decorated with `@mcp.tool()`
+    * Restart Claude Desktop after config changes
 
 </details>
 
@@ -172,6 +185,15 @@ def adopt_pet(animal_id: str) -> str:
 Test with a prompt like:
 "Adopt Cocoa"
 
+**🧪 Testing with uv:**
+```bash
+# Run adoption workflow tests
+uv run pytest -k "adoption_workflow" -v
+
+# Test all adopt_pet functionality
+uv run pytest -k "adopt_pet" -v
+```
+
 ### 4. 🧪 Run a Full Scenario (E2E)
 
 Try this flow:
@@ -187,6 +209,18 @@ You should see Claude:
 
 🙌 This is what tool orchestration looks like!
 
+**🧪 Testing E2E with uv:**
+```bash
+# Run the full end-to-end test suite
+uv run pytest -m integration -v
+
+# Run performance tests
+uv run pytest -m slow -v
+
+# Run all tests with coverage
+uv run pytest --cov=src --cov-report=html
+```
+
 ### 5. 🧠 Prompt Engineering
 
 Refine the descriptions in your tools to guide Claude's behavior.
@@ -201,6 +235,40 @@ or
 Your prompt is your agent's operating system — tweak it and test!
 
 🎉 Great job on getting this far!! 
+
+### 6. 🛠️ Development Workflow with uv
+
+**Essential uv commands for development:**
+
+```bash
+# Install/update dependencies
+uv sync --dev
+
+# Run the server
+uv run python -m src.main
+uv run animal-rescue-mcp
+
+# Testing
+uv run pytest                    # All tests
+uv run pytest -v                # Verbose output
+uv run pytest --cov=src         # With coverage
+uv run pytest -m unit           # Unit tests only
+uv run pytest -m integration    # Integration tests only
+
+# Code quality
+uv run black .                  # Format code
+uv run isort .                  # Sort imports
+uv run mypy src/                # Type checking
+
+# Build and package
+uv build                        # Build wheel/sdist
+```
+
+**🔧 IDE Integration:**
+Most IDEs will automatically detect the `.venv` created by uv. For VS Code:
+1. Open the project folder
+2. Press `Cmd+Shift+P` → "Python: Select Interpreter"
+3. Choose the interpreter from `.venv/bin/python`
 
 ### 🚀 Advanced: HTTP Deployment for Web Clients
 

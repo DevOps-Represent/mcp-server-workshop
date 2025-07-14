@@ -43,8 +43,9 @@ class AnimalRescueService:
 
     def __init__(self) -> None:
         """Initialize the service with animal data."""
-        from .animal_data import ANIMALS_DATA
         import copy
+
+        from .animal_data import ANIMALS_DATA
 
         self.animals: List[Animal] = copy.deepcopy(ANIMALS_DATA)
 
