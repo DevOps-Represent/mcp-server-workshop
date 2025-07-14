@@ -35,16 +35,16 @@ export type AdoptionCertificate = z.infer<typeof adoptionCertificateSchema>;
 export class AnimalRescueService {
   private animals: Animal[] = [...ANIMALS_DATA];
 
-  listAnimals(): Animal[] {
+  async listAnimals(): Promise<Animal[]> {
     return this.animals.filter(animal => !animal.adopted);
   }
 
-  getAnimalById(id: string): Animal | null {
+  async getAnimalById(id: string): Promise<Animal | null> {
     const animal = this.animals.find(animal => animal.id === id);
     return animal || null;
   }
 
-  getAnimalByName(name: string): Animal | null {
+  async getAnimalByName(name: string): Promise<Animal | null> {
     console.log("getAnimalByName", name);
 
 
@@ -55,7 +55,7 @@ export class AnimalRescueService {
     return animal || null;
   }
 
-  adoptAnimal(id: string): AdoptionCertificate | null {
+  async adoptAnimal(id: string): Promise<AdoptionCertificate | null> {
     const animal = this.animals.find(animal => animal.id === id);
     // return a new adoption certificate with a fake pickup location and curent time
     const pickupLocation = "123 Main St, Anytown, USA";

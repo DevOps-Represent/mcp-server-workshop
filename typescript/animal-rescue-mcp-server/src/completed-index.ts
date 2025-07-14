@@ -31,14 +31,19 @@ export class MyMCP extends McpAgent {
 					animals: z.array(animalSchema)
 				}
 			},
-			async () => ({
-        // some clients dont yet support structured content, so we need to return text
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.listAnimals())
-        }],
-				structuredContent: { animals: this.animalRescueService.listAnimals() }
-			})
+			async () => {
+				const structuredContent = {
+					animals: await this.animalRescueService.listAnimals()
+				};
+				return {
+					// some clients dont yet support structured content, so we need to return text
+					content: [{
+						type: "text",
+						text: JSON.stringify(structuredContent)
+					}],
+					structuredContent
+				};
+			}
 		);
 
 		// Tool 2: get_animal_by_id
@@ -54,13 +59,18 @@ export class MyMCP extends McpAgent {
 					id: z.string()
 				}
 			},
-			async ({ id }) => ({
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.getAnimalById(id))
-        }],
-				structuredContent: { animal: this.animalRescueService.getAnimalById(id) }
-			})
+			async ({ id }) => {
+				const structuredContent = {
+					animal: await this.animalRescueService.getAnimalById(id)
+				};
+				return {
+					content: [{
+						type: "text",
+						text: JSON.stringify(structuredContent)
+					}],
+					structuredContent
+				};
+			}
 		);
 
 		// Tool 3: get_animal_by_name
@@ -76,13 +86,18 @@ export class MyMCP extends McpAgent {
 					name: z.string()
 				}
 			},
-			async ({ name }) => ({
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.getAnimalByName(name))
-        }],
-				structuredContent: { animal: this.animalRescueService.getAnimalByName(name) }
-			})
+			async ({ name }) => {
+				const structuredContent = {
+					animal: await this.animalRescueService.getAnimalByName(name)
+				};
+				return {
+					content: [{
+						type: "text",
+						text: JSON.stringify(structuredContent)
+					}],
+					structuredContent
+				};
+			}
 		);
 
 		// Tool 4: adopt_pet
@@ -100,18 +115,18 @@ export class MyMCP extends McpAgent {
 				}
 			},
 			async ({ id }) => {
-				var certificate = this.animalRescueService.adoptAnimal(id);
-				var success = certificate !== null;
+				const certificate = await this.animalRescueService.adoptAnimal(id);
+				const structuredContent = {
+					certificate,
+					success: certificate !== null
+				};
 				return {
 					content: [{
-            type: "text",
-            text: JSON.stringify({
-              certificate: certificate,
-              success: success
-            })
-          }],
-					structuredContent: { certificate: certificate, success: success }
-				}
+						type: "text",
+						text: JSON.stringify(structuredContent)
+					}],
+					structuredContent
+				};
 			}
 		);
 

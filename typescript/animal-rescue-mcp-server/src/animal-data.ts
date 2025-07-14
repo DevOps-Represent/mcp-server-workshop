@@ -1,4 +1,4 @@
-import { Animal } from './animal-rescue-service';
+import type { Animal } from './animal-rescue-service';
 
 export const ANIMALS_DATA: Animal[] = [
   {
