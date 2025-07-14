@@ -13,21 +13,20 @@ You’ll be using the **TypeScript MCP SDK**, but don’t worry — this worksho
 ### 1. 🚀 Clone the repo via your command line of choice
 
 ```
-git clone https://github.com/devops-represent/animal-rescue-mcp.git
-cd animal-rescue-mcp
+git clone https://github.com/DevOps-Represent/mcp-server-workshop.git
+cd typescript/animal-rescue-mcp-server
 ```
 
 ### 2. 📁 Repo Overview
 
-Open your newly cloned repo in your IDE of choice and let's take a look at what's inside the **Typescript** version of this workshop.
-
-* 📄 index.ts: Your main entry point — this starts your server and registers the tools - this is where you'll be working the most.
-* 📄 animal-rescue-service.ts: This file contains some pre-built logic for the workshop — like functions to get animal data and schemas that describe what a valid animal looks like.
+Open your newly cloned repo in your IDE of choice and let's take a look at what's inside the **Typescript** version of this workshop.  
+In the `src` folder you'll find:
+* 📄 `index.ts`: Your main entry point — this starts your server and registers the tools - this is where you'll be working the most.
+* 📄 `animal-rescue-service.ts`: This file contains some pre-built logic for the workshop — like functions to get animal data and schemas that describe what a valid animal looks like.
     * We’ve already defined things like:
         * animalSchema: What each animal object includes (name, type, medical needs, etc.)
         * AnimalRescueService: A helper class with methods to list animals, find them by name or ID, and simulate adoptions.
-* 📄 animal-data.ts: Static JSON-like data that contains info on adoptable pets
-* 📄 TODO brief description of other files that are important
+* 📄 `animal-data.ts`: Static JSON-like data that contains info on adoptable pets
 
 #### Imports!
 
@@ -35,9 +34,9 @@ Open your newly cloned repo in your IDE of choice and let's take a look at what'
 ```
 import { McpAgent } from "agents/mcp";
 ```
-McpAgent is something we’ve created for this project to make it easier to build your own MCP server. It’s not from the SDK itself — but it uses the SDK behind the scenes.
+McpAgent is a wrapper built around the MCP SDK tools, designed to simplify building your own MCP server. It’s not part of the SDK itself, but it uses the SDK under the hood.
 
-Your Class → McpAgent (custom wrapper) → MCP SDK tools (McpServer, etc.)
+MyMCP (your class) → McpAgent (custom wrapper) → MCP SDK tools (McpServer, etc.)
 
 ```
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -109,8 +108,9 @@ Parses the request so we can check what the URL path is (like /sse or /mcp).
 <details>
 <summary>⚔️ Side Quest: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
 
-### 🧠 `/mcp` – The Main Request Handler  
-This is the **core MCP endpoint**.
+MCP currently defines two standard transport mechanisms:
+
+### 🧠 `/mcp` – Standard Input/Output (stdio)
 
 - It handles **regular prompts** from your client (like Claude or Cursor).
 - It takes in a message, routes it through your agent and tools, and returns a **complete response**.
@@ -119,8 +119,7 @@ This is the **core MCP endpoint**.
 
 ---
 
-### 🔄 `/sse` – Streaming Responses  
-This stands for **Server-Sent Events**.
+### 🔄 `/sse` – Server-Sent Events (SSE)
 
 - It allows the AI to **stream back partial responses** as it thinks — like it's typing in real time.
 - It’s often used for **multi-step reasoning**, where you want to see thoughts unfold step-by-step.
@@ -166,21 +165,64 @@ npm install
 npm start
 ```
 
-You should see your MCP server booting up on http://localhost:3333
+You should see your MCP server booting up on http://localhost:8787
 
 
 
 ### 5. 🔌 Connect your MCP client
 
 Open your MCP-compatible client of choice and connect it to your running server:
-* Claude Desktop → Settings > Developer > Add MCP URL: http://localhost:3333
-* Cursor → Uses Claude under the hood — configure in .cursor settings
-* Cloudflare Playground → Use endpoint-compatible format if deploying
 
-You’ll see the server log connections when the model starts chatting with it. Try the following prompt and see what happens:
+#### Claude Desktop
+1. Settings -> Developer
+2. Edit Config
+3. Select `claude_desktop_config.json`
+4. Add your MCP server:
+
 ```
-Hi! What tools do you have for animal rescue service?
+ {
+  "mcpServers": {
+    "animal-rescue": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8787/mcp"
+      ]
+    }
+  }
+}
 ```
+5. Restart Claude
+6. In the main window, tap on the “Search and tools” icon (next to the Plus icon). You should see your MCP server listed there.
+
+> Note: It may be currently disconnected, as there are no tools yet. We'll build them in the next step!
+
+#### Cursor
+1. Settings -> Cursor Settings -> Tools & Integration
+2. New MCP Server
+3. File `.config` should open, add your MCP server there:
+
+```
+{
+  "mcpServers": {
+    "animal-rescue": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8787/mcp"
+      ]
+    }
+  }
+}
+```
+
+#### Cloudflare Playground
+1. Go to https://playground.ai.cloudflare.com
+2. Enter MCP server URL: 
+- if you're using stdio: http://localhost:8787/mcp
+- if you're using SSE: http://localhost:8787/sse
+
+> At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
 
 ⸻
 
@@ -213,24 +255,23 @@ This structure keeps all your server logic tidy and makes it easy to add more to
 
 ### 7. 🛠️ Add Tool 1: list_animals
 
-Let’s register your first tool — list_animals — which lets your MCP client request a list of all available pets.
+Let’s register your first tool — `list_animals` — which lets your MCP client request a list of all available pets.
 
 This tool connects your MCP server to your animal data and makes it available to your client via tool-calling.
 
 
 📌 What This Tool Does
-* 🐾 Name: list_animals
+* 🐾 Name: `list_animals`
 * 📝 Description: “List all animals in the animal rescue service”
-* 📄 Returns:
-* 🐱 A plain text object with all animals 🐔
+* 📄 Returns: A plain text object with all animals 🐔
 
 🧠 Where Do I Add This?
 
-Add this inside your init() method in your MyMCP class (in index.ts - which is where all your tools will be added).
+Add this inside your `init()` method in your MyMCP class (in `index.ts` - which is where all your tools will be added).
 
 Look for `// Tool 1: list_animals`
 
-Start typing out the registerTool() call inside init():
+Start typing out the `registerTool()` call inside init():
 ```
 this.server.registerTool(
   "list_animals", // the tool name
@@ -366,7 +407,7 @@ Claude should call your tool and reply with a list of pets! 🎉
 * ❌ Tool not called?
     * Check your prompt or tool name. Use specific trigger phrases like “list all pets” or “available animals.”
 * ❌ Server not responding?
-    * Make sure you’re on the right port (3333) and your client is pointing at http://localhost:3333
+    * Make sure you’re on the right port (8787) and your client is pointing at http://localhost:8787
 
 </details>
 

@@ -14,14 +14,14 @@ Now let’s build out more of your MCP agent’s capabilities! In this section, 
 This tool lets Claude fetch a specific animal based on its ID.
 
 🧠 What this tool does:
-* Tool name: get_animal_by_id
-* Input: an id (like cat-002)
+* Tool name: `get_animal_by_id`
+* Input: `id` (like `cat-002`)
 * Output: details about a single animal (or null if not found)
-* Where to add it: Inside the init() method in your MyMCP class, just like list_animals
+* Where to add it: Inside the `init()` method in your MyMCP class, just like `list_animals`
 
 **Start the tool definition**
 
-Below your list_animals tool inside the init() method, begin defining a new tool:
+Below your list_animals tool inside the `init()` method, begin defining a new tool:  
 ‼️ Remember to put a great tool description to replace `TODO` ‼️
 ```ts
 this.server.registerTool(
@@ -89,9 +89,11 @@ The last part is to tell the tool what to do with the id.
 </details>
 
 
-Test with a prompt like:
+#### 🧪🐾  Testing
 
-“Can you show me the details for animal with ID cat-002?”
+Test with a prompt like: 
+
+> “Can you show me the details for animal with ID cat-002?”
 
 <details>
 <summary>🐞 Common Errors + Debugging Tips</summary>
@@ -103,7 +105,7 @@ Test with a prompt like:
 * ❌ No result or empty response?
     * Confirm that the ID you’re testing actually exists in the dataset (check `animal-data.ts`)
 * ❌ Claude/client says “no tools available”?
-    * Make sure the tool is added inside the init() method and init() is being called.
+    * Make sure the tool is added inside the `init()`. Try restarting the client
 
 </details>
 <br>
@@ -113,14 +115,14 @@ Test with a prompt like:
 Same idea, but matching by name.
 
 🧠 What this tool does:
-* Tool name: search_animals_by_name
+* Tool name: `search_animals_by_name`
 * Input: the name of the animal (like "Charlie")
 * Output: the animal’s full info if found, or null if it doesn’t exist
-* Where to add it: Inside the init() method in your MyMCP class
+* Where to add it: Inside the `init()` method in your MyMCP class
 
 **Start the tool definition**
 
-Below your previous tool (or wherever you’re grouping your tools), begin writing:
+Below your previous tool (or wherever you’re grouping your tools), begin writing:  
 ‼️ Remember to put a great tool description to replace `TODO` ‼️
 ```ts
 this.server.registerTool(
@@ -184,9 +186,9 @@ Now return the result from your animal service as plain text:
 
 </details>
 
-Test with a prompt like:
+#### 🧪🐾  Testing
 
-“Can you show me the details for the dog Charlie?”
+> “Can you show me the details for the dog Charlie?”
 
 **👼🏻 We've done the work to ensure the dog name isn't case sensitive for you, try it out! 👼🏻**
 
@@ -195,11 +197,13 @@ Test with a prompt like:
 
 Simulate an adoption — remove the pet from the list and return a message.
 
-This tool allows your client to **adopt a pet by its ID**. When the tool is used:
-
-- It tries to find and remove the pet from the list.
-- If successful, it returns a **certificate of adoption** and marks the action as **successful**.
-- If not, it returns `null` and sets `success` to `false`.
+🧠 What this tool does:
+* Tool name: `adopt_pet`
+* Input: `id` (like `cat-002`)
+* Output: 
+  - If successful, it returns a **certificate of adoption** and marks the action as **successful**.
+  - If not, it returns `null` and sets `success` to `false`.
+* Where to add it: Inside the `init()` method in your MyMCP class, just like `list_animals`
 
 This tool builds on what you’ve done before, but introduces:
 
@@ -209,7 +213,7 @@ This tool builds on what you’ve done before, but introduces:
 
 **Start the tool definition**
 
-Begin in your init() method:
+Begin in your `init()` method:
 ```
 this.server.registerTool(
   "adopt_pet",
@@ -239,8 +243,6 @@ This tool will:
 
 
 **Now let’s tell the tool what to do when your mcp client calls it.**
-
-Now let’s tell the tool what to do when it’s called with an animal ID.
 
 We’ll:
 1.  Use your AnimalRescueService to attempt to adopt the pet
@@ -299,11 +301,13 @@ This logic returns:
 		);
 ```
 
-</details>
+</details>  
 
-Test with a prompt like:
+#### 🧪🐾  Testing
 
-“Adopt Cocoa”
+Test with a prompt like: 
+
+> “Adopt Cocoa”
 
 
 
