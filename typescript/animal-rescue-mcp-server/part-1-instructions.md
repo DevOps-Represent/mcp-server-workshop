@@ -31,26 +31,26 @@ In the `src` folder you'll find:
 #### Imports!
 
 **📦 index.ts Import Descriptions**
-```
+```ts
 import { McpAgent } from "agents/mcp";
 ```
 McpAgent is a wrapper built around the MCP SDK tools, designed to simplify building your own MCP server. It’s not part of the SDK itself, but it uses the SDK under the hood.
 
 MyMCP (your class) → McpAgent (custom wrapper) → MCP SDK tools (McpServer, etc.)
 
-```
+```ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 ```
 McpServer: This is the actual server that communicates with Claude (or another MCP-compatible client).
 It listens for requests, manages tool registration, and handles sending back structured responses.
 
-```
+```ts
 import { z } from "zod";
 ```
 z: This is from the Zod library — used to define and validate input/output schemas for your tools.
 Helps ensure that your client sends structured data you can work with (and avoids weird bugs).
 
-```
+```ts
 import {
   AnimalRescueService,
   animalSchema,
@@ -146,7 +146,7 @@ This sets up CORS (Cross-Origin Resource Sharing) to only allow requests from th
 This is a safety feature that prevents other websites from using your server without permission.
 
 **🛑 All other paths**
-```
+```ts
 return new Response("Not found", { status: 404 });
 ```
 If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
@@ -235,7 +235,7 @@ Inside this class, we set up everything your AI-powered server needs — includi
 
 
 Your setup might look like this:
-```
+```ts
 export class MyMCP extends McpAgent {
   server = new McpServer({
     name: "Animal Rescue",
@@ -272,7 +272,8 @@ Add this inside your `init()` method in your MyMCP class (in `index.ts` - which 
 Look for `// Tool 1: list_animals`
 
 Start typing out the `registerTool()` call inside init():
-```
+
+```ts
 this.server.registerTool(
   "list_animals", // the tool name
   {
@@ -285,6 +286,7 @@ this.server.registerTool(
   // We’ll add what the tool does in the next step — it will return a list of animals as plain text
 );
 ```
+
 ℹ️ The tool name `list_animals` is how your mcp client will refer to it internally.
 
 **Let's fill in the description where it currently says `TODO`.**
@@ -339,7 +341,7 @@ Picking the right description for your tool helps your mcp client know when (and
 In this case, we want to return the full list of animals from your service as a plain text string.
 
 Here’s what that looks like:
-```
+```ts
 async () => ({
   content: [{
     type: "text",
@@ -362,28 +364,33 @@ Paste that into your code where the following comment appears:
 
 <summary>🆘 Break Glass Code: Copy/paste version of list_animals</summary>
 
-```
-	async init() {		
-		// Tool 1: list_animals
-		this.server.registerTool(
-			"list_animals",
-			{
-				title: "List all animals",
-				description: "List all animals in the animal rescue service",
-				outputSchema: {
-					animals: z.array(animalSchema)
-				}
-			},
-			async () => ({
-        // some clients dont yet support structured content, so we need to return text
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.listAnimals())
-        }],
-				structuredContent: { animals: this.animalRescueService.listAnimals() }
-			})
-		);
+```ts
+async init() {		
+	// Tool 1: list_animals
+  this.server.registerTool(
+  	"list_animals",
+  	{
+  		title: "List all animals",
+  		description: "List all animals in the animal rescue service",
+  		outputSchema: {
+  			animals: z.array(animalSchema)
+  		}
+  	},
+  	async () => {
+  		const structuredContent = {
+  			animals: await this.animalRescueService.listAnimals()
+  		};
+  		return {
+  			// some clients don't yet support structured content, so we need to return text
+  			content: [{
+  				type: "text",
+  				text: JSON.stringify(structuredContent)
+  			}],
+  			structuredContent
+  		};
     }
+  );
+}
 ```
 
 </details>

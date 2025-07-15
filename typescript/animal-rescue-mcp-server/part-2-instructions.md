@@ -64,26 +64,31 @@ The last part is to tell the tool what to do with the id.
 <summary>🆘 Break Glass Code: get_animal_by_id</summary>
 
 ```ts
-		this.server.registerTool(
-			"get_animal_by_id",
-			{
-				title: "Get an animal",
-				description: "Get an animal by id, only use this if you know the id of the animal",
-				outputSchema: {
-					animal: z.nullable(animalSchema)
-				},
-				inputSchema: {
-					id: z.string()
-				}
-			},
-			async ({ id }) => ({
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.getAnimalById(id))
-        }],
-				structuredContent: { animal: this.animalRescueService.getAnimalById(id) }
-			})
-		);
+this.server.registerTool(
+	"get_animal_by_id",
+	{
+		title: "Get an animal",
+		description: "Get an animal by id, only use this if you know the id of the anim
+		outputSchema: {
+			animal: z.nullable(animalSchema)
+		},
+		inputSchema: {
+			id: z.string()
+		}
+	},
+	async ({ id }) => {
+		const structuredContent = {
+			animal: await this.animalRescueService.getAnimalById(id)
+		};
+		return {
+			content: [{
+				type: "text",
+				text: JSON.stringify(structuredContent)
+			}],
+			structuredContent
+		};
+	}
+);
 ```
 
 </details>
@@ -159,29 +164,34 @@ Now return the result from your animal service as plain text:
 ```
 
 <details>
-<summary>🆘 Break Glass Code: get_animal_by_name</summary>
+<summary>🆘 Break Glass Code: search_animals_by_name</summary>
 
-```
-		this.server.registerTool(
-			"search_animals_by_name",
-			{
-				title: "Get an animal",
-				description: "Find an animal by name, only use this if you know the name of the animal",
-				outputSchema: {
-					animal: z.nullable(animalSchema)
-				},
-				inputSchema: {
-					name: z.string()
-				}
-			},
-			async ({ name }) => ({
-				content: [{
-          type: "text",
-          text: JSON.stringify(this.animalRescueService.getAnimalByName(name))
-        }],
-				structuredContent: { animal: this.animalRescueService.getAnimalByName(name) }
-			})
-		);
+```ts
+this.server.registerTool(
+	"search_animals_by_name",
+	{
+		title: "Get an animal",
+		description: "Find an animal by name, only use this if you know the name of the animal",
+		outputSchema: {
+			animal: z.nullable(animalSchema)
+		},
+		inputSchema: {
+			name: z.string()
+		}
+	},
+	async ({ name }) => {
+		const structuredContent = {
+			animal: await this.animalRescueService.getAnimalByName(name)
+		};
+		return {
+			content: [{
+				type: "text",
+				text: JSON.stringify(structuredContent)
+			}],
+			structuredContent
+		};
+	}
+);
 ```
 
 </details>
@@ -214,7 +224,7 @@ This tool builds on what you’ve done before, but introduces:
 **Start the tool definition**
 
 Begin in your `init()` method:
-```
+```ts
 this.server.registerTool(
   "adopt_pet",
   {
@@ -228,7 +238,7 @@ This tool will:
 * Take an id string as input
 * Return a certificate (or null) and a success flag
 
-```
+```ts
     inputSchema: {
       id: z.string()
     },
@@ -270,35 +280,35 @@ This logic returns:
 <details>
 <summary>🆘 Break Glass Code: adopt_pet</summary>
 
-```
-		this.server.registerTool(
-			"adopt_pet",
-			{
-				title: "Adopt a pet",
-				description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error. If a pet is not compatible with the customer, urge them to reconsider and adopt a more compatible pet.",
-				outputSchema: {
-					certificate: z.nullable(adoptionCertificateSchema),
-					success: z.boolean()
-				},
-				inputSchema: {
-					id: z.string()
-				}
-			},
-			async ({ id }) => {
-				var certificate = this.animalRescueService.adoptAnimal(id);
-				var success = certificate !== null;
-				return {
-					content: [{
-            type: "text",
-            text: JSON.stringify({
-              certificate: certificate,
-              success: success
-            })
-          }],
-					structuredContent: { certificate: certificate, success: success }
-				}
-			}
-		);
+```ts
+this.server.registerTool(
+	"adopt_pet",
+	{
+		title: "Adopt a pet",
+		description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error. If a pet is not compatible with the customer, urge them to reconsider and adopt a more compatible pet.",
+		outputSchema: {
+			certificate: z.nullable(adoptionCertificateSchema),
+			success: z.boolean()
+		},
+		inputSchema: {
+			id: z.string()
+		}
+	},
+	async ({ id }) => {
+		const certificate = await this.animalRescueService.adoptAnimal(id);
+		const structuredContent = {
+			certificate,
+			success: certificate !== null
+		};
+		return {
+			content: [{
+				type: "text",
+				text: JSON.stringify(structuredContent)
+			}],
+			structuredContent
+		};
+	}
+);
 ```
 
 </details>  
