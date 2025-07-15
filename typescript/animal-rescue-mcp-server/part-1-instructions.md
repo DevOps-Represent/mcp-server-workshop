@@ -112,29 +112,29 @@ Parses the request so we can check what the URL path is (like /sse or /mcp).
 ### 🧠 `/mcp` – The Main Request Handler  
 This is the **core MCP endpoint**.
 
-- It handles **regular prompts** from your client (like Claude or Cursor).
-- It takes in a message, routes it through your agent and tools, and returns a **complete response**.
-- Think of it like:  
-  > “Here’s a question. Give me the full answer.”
+- It's a new "transport" (method of communication) introduced as of protocol version 2024-11-05
+- It replaces the old sse-only transport but it also handles `sse` whenever it makes sense, like streaming a large response.
+- Why was it deprecated? Because for a lot of use cases it's more efficient to just send a request and get a response.
+- Also the new "transport" introduces the concept of a `session`, so your agent can pick up from where it left off.
 
 ---
 
-### 🔄 `/sse` – Streaming Responses  
+### 🔄 `/sse` – The old but _still common_ way 
 This stands for **Server-Sent Events**.
 
-- It allows the AI to **stream back partial responses** as it thinks — like it's typing in real time.
-- It’s often used for **multi-step reasoning**, where you want to see thoughts unfold step-by-step.
-- Think of it like:  
-  > “Tell me your thought process as you go.”
+- The original "transport" where the server would always establish a "long-lived" connection and send responses via `sse`
+- Some clients still haven't upgraded to the new transport so it's a good idea to implement in on your server just in case.
+- Good news is the lab implements it so you should be ready to go with any client.
+- Much more info in the [original pull and merge](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/206)
 
 ---
 
 ### 🧪 TL;DR
 
-| Route   | What It Does                                  | When It’s Used                            |
-|---------|-----------------------------------------------|-------------------------------------------|
-| `/mcp`  | Standard single-shot prompt & tool handling   | Most tool-based interactions              |
-| `/sse`  | Streams back thoughts step-by-step            | When using agents that think out loud (like ReAct) |
+| Route   | What It Does                                      | 
+|---------|---------------------------------------------------|
+| `/mcp`  | Thew new and recommended way, streams when needed |  
+| `/sse`  | The old way, still use by lots of clients         |
 
 </details>
 <br>
