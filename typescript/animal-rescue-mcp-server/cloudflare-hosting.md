@@ -30,7 +30,7 @@ Update with this configuration:
 ```json
 {
   "mcpServers": {
-    "calculator": {
+    "animal-rescue": {
       "command": "npx",
       "args": [
         "-y",
