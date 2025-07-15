@@ -1,5 +1,4 @@
 
-
 # 🐾 Part 1: MCP Server Workshop: Animal Rescue Edition
 
 Welcome! In this workshop, we’ll explore what an MCP server is, how it connects to AI models like Claude, and how to use tools and prompts to build a smart backend — all while helping match humans with adoptable pets 🐕🐍🐔
@@ -12,7 +11,7 @@ You’ll be using the **TypeScript MCP SDK**, but don’t worry — this worksho
 
 ### 1. 🚀 Clone the repo via your command line of choice
 
-```
+```bash
 git clone https://github.com/DevOps-Represent/mcp-server-workshop.git
 cd typescript/animal-rescue-mcp-server
 ```
@@ -21,43 +20,50 @@ cd typescript/animal-rescue-mcp-server
 
 Open your newly cloned repo in your IDE of choice and let's take a look at what's inside the **Typescript** version of this workshop.  
 In the `src` folder you'll find:
+
 * 📄 `index.ts`: Your main entry point — this starts your server and registers the tools - this is where you'll be working the most.
 * 📄 `animal-rescue-service.ts`: This file contains some pre-built logic for the workshop — like functions to get animal data and schemas that describe what a valid animal looks like.
-    * We’ve already defined things like:
-        * animalSchema: What each animal object includes (name, type, medical needs, etc.)
-        * AnimalRescueService: A helper class with methods to list animals, find them by name or ID, and simulate adoptions.
+  * We’ve already defined things like:
+    * animalSchema: What each animal object includes (name, type, medical needs, etc.)
+    * AnimalRescueService: A helper class with methods to list animals, find them by name or ID, and simulate adoptions.
 * 📄 `animal-data.ts`: Static JSON-like data that contains info on adoptable pets
 
-#### Imports!
+#### Imports
 
 **📦 index.ts Import Descriptions**
-```
+
+```ts
 import { McpAgent } from "agents/mcp";
 ```
+
 McpAgent is a wrapper built around the MCP SDK tools, designed to simplify building your own MCP server. It’s not part of the SDK itself, but it uses the SDK under the hood.
 
 MyMCP (your class) → McpAgent (custom wrapper) → MCP SDK tools (McpServer, etc.)
 
-```
+```ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 ```
+
 McpServer: This is the actual server that communicates with Claude (or another MCP-compatible client).
 It listens for requests, manages tool registration, and handles sending back structured responses.
 
-```
+```ts
 import { z } from "zod";
 ```
+
 z: This is from the Zod library — used to define and validate input/output schemas for your tools.
 Helps ensure that your client sends structured data you can work with (and avoids weird bugs).
 
-```
+```ts
 import {
   AnimalRescueService,
   animalSchema,
   adoptionCertificateSchema
 } from "./animal-rescue-service";
 ```
+
 We've done some work to create the animal rescue service, so you're not creating is from scratch. Importing the following means we focus more on the mcp server set up and less about the animal rescue service creation!
+
 * AnimalRescueService: A helper class that contains all the logic for managing pets — listing them, looking them up, simulating adoptions, etc.
 * animalSchema: A Zod schema that describes what a valid animal object looks like (e.g., name, type, home requirements).
 * adoptionCertificateSchema: Another Zod schema — likely used for generating structured confirmation when a pet is adopted (e.g., name, date, adopter).
@@ -110,25 +116,25 @@ Parses the request so we can check what the URL path is (like /sse or /mcp).
 
 MCP currently defines two standard transport mechanisms:
 
-### 🧠 `/mcp` – Standard Input/Output (stdio)
+#### 🧠 `/mcp` – Standard Input/Output (stdio)
 
-- It handles **regular prompts** from your client (like Claude or Cursor).
-- It takes in a message, routes it through your agent and tools, and returns a **complete response**.
-- Think of it like:  
+* It handles **regular prompts** from your client (like Claude or Cursor).
+* It takes in a message, routes it through your agent and tools, and returns a **complete response**.
+* Think of it like:  
   > “Here’s a question. Give me the full answer.”
 
 ---
 
-### 🔄 `/sse` – Server-Sent Events (SSE)
+#### 🔄 `/sse` – Server-Sent Events (SSE)
 
-- It allows the AI to **stream back partial responses** as it thinks — like it's typing in real time.
-- It’s often used for **multi-step reasoning**, where you want to see thoughts unfold step-by-step.
-- Think of it like:  
+* It allows the AI to **stream back partial responses** as it thinks — like it's typing in real time.
+* It’s often used for **multi-step reasoning**, where you want to see thoughts unfold step-by-step.
+* Think of it like:  
   > “Tell me your thought process as you go.”
 
 ---
 
-### 🧪 TL;DR
+#### 🧪 TL;DR
 
 | Route   | What It Does                                  | When It’s Used                            |
 |---------|-----------------------------------------------|-------------------------------------------|
@@ -138,21 +144,21 @@ MCP currently defines two standard transport mechanisms:
 </details>
 <br>
 
-
-
-**✅ const allowedOrigins = "https://playground.ai.cloudflare.com";**
+**✅ const allowedOrigins = "<https://playground.ai.cloudflare.com>";**
 
 This sets up CORS (Cross-Origin Resource Sharing) to only allow requests from the Cloudflare AI Playground.
 This is a safety feature that prevents other websites from using your server without permission.
 
 **🛑 All other paths**
-```
+
+```ts
 return new Response("Not found", { status: 404 });
 ```
+
 If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
 
-
 ### 3. 📦 Install dependencies
+
 Install the required packages and start your MCP server so it can run locally and accept connections from your AI client.
 
 ```
@@ -165,26 +171,26 @@ npm install
 npm start
 ```
 
-You should see your MCP server booting up on http://localhost:8787
-
-
+You should see your MCP server booting up on <http://localhost:8787>
 
 ### 5. 🔌 Connect your MCP client
 
 Open your MCP-compatible client of choice and connect it to your running server:
 
 #### Claude Desktop
+
 1. Settings -> Developer
 2. Edit Config
 3. Select `claude_desktop_config.json`
 4. Add your MCP server:
 
-```
+```json
  {
   "mcpServers": {
     "animal-rescue": {
       "command": "npx",
       "args": [
+        "-y",
         "mcp-remote",
         "http://localhost:8787/mcp"
       ]
@@ -192,22 +198,25 @@ Open your MCP-compatible client of choice and connect it to your running server:
   }
 }
 ```
+
 5. Restart Claude
 6. In the main window, tap on the “Search and tools” icon (next to the Plus icon). You should see your MCP server listed there.
 
 > Note: It may be currently disconnected, as there are no tools yet. We'll build them in the next step!
 
 #### Cursor
+
 1. Settings -> Cursor Settings -> Tools & Integration
 2. New MCP Server
 3. File `.config` should open, add your MCP server there:
 
-```
+```json
 {
   "mcpServers": {
     "animal-rescue": {
       "command": "npx",
       "args": [
+        "-y",
         "mcp-remote",
         "http://localhost:8787/mcp"
       ]
@@ -217,10 +226,13 @@ Open your MCP-compatible client of choice and connect it to your running server:
 ```
 
 #### Cloudflare Playground
-1. Go to https://playground.ai.cloudflare.com
-2. Enter MCP server URL: 
-- if you're using stdio: http://localhost:8787/mcp
-- if you're using SSE: http://localhost:8787/sse
+
+1. Go to <https://playground.ai.cloudflare.com>
+2. Enter MCP server URL:
+
+* if you're using stdio: <http://localhost:8787/mcp>
+
+* if you're using SSE: <http://localhost:8787/sse>
 
 > At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
 
@@ -229,13 +241,14 @@ Open your MCP-compatible client of choice and connect it to your running server:
 ### 6. 🧱 Understand the MCP Scaffolding
 
 Inside this class, we set up everything your AI-powered server needs — including:
+
 * ✨ A name and version
 * 🧰 The tools it can call, which we will create in this workshop
 * 📄 Any resources it might return (like adoption info)
 
-
 Your setup might look like this:
-```
+
+```ts
 export class MyMCP extends McpAgent {
   server = new McpServer({
     name: "Animal Rescue",
@@ -252,15 +265,14 @@ export class MyMCP extends McpAgent {
 
 This structure keeps all your server logic tidy and makes it easy to add more tools or features as you go.
 
-
 ### 7. 🛠️ Add Tool 1: list_animals
 
 Let’s register your first tool — `list_animals` — which lets your MCP client request a list of all available pets.
 
 This tool connects your MCP server to your animal data and makes it available to your client via tool-calling.
 
-
 📌 What This Tool Does
+
 * 🐾 Name: `list_animals`
 * 📝 Description: “List all animals in the animal rescue service”
 * 📄 Returns: A plain text object with all animals 🐔
@@ -272,7 +284,8 @@ Add this inside your `init()` method in your MyMCP class (in `index.ts` - which 
 Look for `// Tool 1: list_animals`
 
 Start typing out the `registerTool()` call inside init():
-```
+
+```ts
 this.server.registerTool(
   "list_animals", // the tool name
   {
@@ -285,6 +298,7 @@ this.server.registerTool(
   // We’ll add what the tool does in the next step — it will return a list of animals as plain text
 );
 ```
+
 ℹ️ The tool name `list_animals` is how your mcp client will refer to it internally.
 
 **Let's fill in the description where it currently says `TODO`.**
@@ -300,7 +314,7 @@ Picking the right description for your tool helps your mcp client know when (and
 
 ---
 
-### ✅ Good Examples
+#### ✅ Good Examples
 
 | Tool Name         | Description                                                                 |
 |------------------|------------------------------------------------------------------------------|
@@ -312,7 +326,7 @@ Picking the right description for your tool helps your mcp client know when (and
 
 ---
 
-### ❌ Not-So-Great Examples
+#### ❌ Not-So-Great Examples
 
 | Tool Name         | Description        |
 |------------------|--------------------|
@@ -324,22 +338,23 @@ Picking the right description for your tool helps your mcp client know when (and
 
 ---
 
-### 💡 Tips:
-- Use **clear verbs**: list, return, mark, suggest, look up  
-- Think: “How would I describe this tool in one sentence to another human?”
-- The model sees this — so make it *mcp-client-friendly*, not just code-friendly
+#### 💡 Tips
+
+* Use **clear verbs**: list, return, mark, suggest, look up  
+
+* Think: “How would I describe this tool in one sentence to another human?”
+* The model sees this — so make it *mcp-client-friendly*, not just code-friendly
 
 </details>
 <br>
-
-
 
 **Now let’s tell the tool what to do when your mcp client calls it.**
 
 In this case, we want to return the full list of animals from your service as a plain text string.
 
 Here’s what that looks like:
-```
+
+```ts
 async () => ({
   content: [{
     type: "text",
@@ -347,7 +362,9 @@ async () => ({
   }]
 })
 ```
+
 This will:
+
 * Call your pre-built function `listAnimals()`
 * Convert the result into a readable JSON string
 * Return it as plain text, which your mcp client can read and use in its reply
@@ -356,38 +373,35 @@ Paste that into your code where the following comment appears:
 
 `// We’ll add what the tool does in the next step — it will return a list of animals as plain text`
 
-
-
 <details>
 
 <summary>🆘 Break Glass Code: Copy/paste version of list_animals</summary>
 
-```
-	async init() {		
-		// Tool 1: list_animals
-		this.server.registerTool(
-			"list_animals",
-			{
-				title: "List all animals",
-				description: "List all animals in the animal rescue service",
-				outputSchema: {
-					animals: z.array(animalSchema)
-				}
-			},
-			async () => ({
+```ts
+ async init() {  
+  // Tool 1: list_animals
+  this.server.registerTool(
+   "list_animals",
+   {
+    title: "List all animals",
+    description: "List all animals in the animal rescue service",
+    outputSchema: {
+     animals: z.array(animalSchema)
+    }
+   },
+   async () => ({
         // some clients dont yet support structured content, so we need to return text
-				content: [{
+    content: [{
           type: "text",
           text: JSON.stringify(this.animalRescueService.listAnimals())
         }],
-				structuredContent: { animals: this.animalRescueService.listAnimals() }
-			})
-		);
+    structuredContent: { animals: this.animalRescueService.listAnimals() }
+   })
+  );
     }
 ```
 
 </details>
-
 
 ### 8. 🧪 Test It Out
 
@@ -403,15 +417,13 @@ Claude should call your tool and reply with a list of pets! 🎉
 <summary>🐞 Common Errors + Debugging Tips</summary>
 
 * ❌ “Cannot find module ‘./animal-data’”
-    * Make sure animal-data.ts is in the same folder and you’re importing it properly!
+  * Make sure animal-data.ts is in the same folder and you’re importing it properly!
 * ❌ Tool not called?
-    * Check your prompt or tool name. Use specific trigger phrases like “list all pets” or “available animals.”
+  * Check your prompt or tool name. Use specific trigger phrases like “list all pets” or “available animals.”
 * ❌ Server not responding?
-    * Make sure you’re on the right port (8787) and your client is pointing at http://localhost:8787
+  * Make sure you’re on the right port (8787) and your client is pointing at <http://localhost:8787>
 
 </details>
-
-
 
 Nice work on getting this far. Now that we've created our first tool, let's imbed that knowledge further and creation some more tools in Part 2!
 

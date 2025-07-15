@@ -33,6 +33,7 @@ Update with this configuration:
     "calculator": {
       "command": "npx",
       "args": [
+        "-y",
         "mcp-remote@latest",
         "http://localhost:3333/sse"  // or remote-mcp-server-authless.your-account.workers.dev/sse
       ]
