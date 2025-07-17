@@ -164,9 +164,10 @@ Now return the result from your animal service as plain text:
 ```
 
 <details>
-<summary>🆘 Break Glass Code: get_animal_by_name</summary>
+<summary>🆘 Break Glass Code: search_animals_by_name</summary>
 
 ```ts
+
   this.server.registerTool(
    "search_animals_by_name",
    {
