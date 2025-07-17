@@ -224,6 +224,13 @@ Open your MCP-compatible client of choice and connect it to your running server:
 
 > At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
 
+#### MCP Inspector
+1. Run `npx @modelcontextprotocol/inspector` in a terminal
+2. Your browser should automatically open with the correct url, it will be printed out in the terminal as well
+3. Select transport type `sse` and url `http://localhost:8787/sse`
+
+> Note: there is no AI Agent invovled with MCP inspector, uses this when you want more direct visibility to the MCP Server (more info [here](https://modelcontextprotocol.io/docs/tools/inspector))
+
 ⸻
 
 ### 6. 🧱 Understand the MCP Scaffolding
