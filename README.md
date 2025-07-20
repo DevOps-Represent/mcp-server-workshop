@@ -48,16 +48,16 @@ All tools are free, open source, or have free tiers. We'll support you with setu
 |---------------------------------|----------------------------------|
 | TypeScript or Python MCP SDK    | Core server logic                |
 | Node.js v18+ or Python 3.10+    | Runtime                          |
-| Claude (Anthropic API)          | AI model backend                 |
-| Fastify (TS) / FastAPI (Python) | Used by SDK                      |
-| Cloudflare Workers / Pages      | Live deployment platform         |
+| MCP client of choice            | AI model backend                 |
+| Cloudflare Workers /            | Live deployment platform         |
 
 You’ll need:
 - A personal GitHub account
 - A working Node.js v18+ or Python 3.10+ environment (or Gitpod access)
-- An account with [Claude](https://claude.ai/) 
+- An account with [Claude](https://claude.ai/) or mcp client of choice
 - A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier is fine)
 
+### 👉🏾[Full set-up instructions are here](workshop_setup_instructions.md) 
 </details>
 
 ---

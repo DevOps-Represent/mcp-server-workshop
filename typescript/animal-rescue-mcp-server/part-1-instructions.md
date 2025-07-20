@@ -93,17 +93,15 @@ export default {
 
 This section is what your mcp client uses to decide how to route incoming HTTP requests to the right part of your MCP server.
 
-**🔁 fetch(...)**
-
-This is the main handler. Every time a request comes into your server, it runs this function.
-
-⸻
-
 🧩 Let’s break down what each part does:
 
-**✅ const url = new URL(request.url);**
+- **🔁 fetch(...)**
 
-Parses the request so we can check what the URL path is (like /sse or /mcp).
+  - This is the main handler. Every time a request comes into your server, it runs this function.
+
+- **✅ const url = new URL(request.url);**
+
+  - Parses the request so we can check what the URL path is (like /sse or /mcp).
 
 <details>
 <summary>⚔️ Side Quest: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
@@ -140,16 +138,15 @@ MCP currently defines two standard transport mechanisms:
 
 
 
-**✅ const allowedOrigins = "https://playground.ai.cloudflare.com";**
+- **✅ const allowedOrigins = "https://playground.ai.cloudflare.com";**
 
-This sets up CORS (Cross-Origin Resource Sharing) to only allow requests from the Cloudflare AI Playground.
-This is a safety feature that prevents other websites from using your server without permission.
+  - This sets up CORS (Cross-Origin Resource Sharing) to only allow requests from the Cloudflare AI Playground. This is a safety feature that prevents other websites from using your server without permission.
 
-**🛑 All other paths**
+- **🛑 All other paths**
 ```ts
 return new Response("Not found", { status: 404 });
 ```
-If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
+  - If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
 
 
 ### 3. 📦 Install dependencies
@@ -169,11 +166,12 @@ You should see your MCP server booting up on http://localhost:8787
 
 
 
-### 5. 🔌 Connect your MCP client
+### 5. 🔌 Connect your MCP client (Choose ONE)
 
 Open your MCP-compatible client of choice and connect it to your running server:
 
-#### Claude Desktop
+<details>
+<summary><strong>Claude Desktop</strong></summary>
 1. Settings -> Developer
 2. Edit Config
 3. Select `claude_desktop_config.json`
@@ -196,8 +194,18 @@ Open your MCP-compatible client of choice and connect it to your running server:
 6. In the main window, tap on the “Search and tools” icon (next to the Plus icon). You should see your MCP server listed there.
 
 > Note: It may be currently disconnected, as there are no tools yet. We'll build them in the next step!
+</details>
 
-#### Cursor
+<details>
+<summary><strong>Cloudflare Playground</strong></summary>
+1. Go to https://playground.ai.cloudflare.com
+2. Enter MCP server URL: 
+- if you're using stdio: http://localhost:8787/mcp
+- if you're using SSE: http://localhost:8787/sse
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
 1. Settings -> Cursor Settings -> Tools & Integration
 2. New MCP Server
 3. File `.config` should open, add your MCP server there:
@@ -216,13 +224,10 @@ Open your MCP-compatible client of choice and connect it to your running server:
 }
 ```
 
-#### Cloudflare Playground
-1. Go to https://playground.ai.cloudflare.com
-2. Enter MCP server URL: 
-- if you're using stdio: http://localhost:8787/mcp
-- if you're using SSE: http://localhost:8787/sse
+</details>
 
-> At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
+
+At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
 
 ⸻
 
@@ -262,7 +267,6 @@ This tool connects your MCP server to your animal data and makes it available to
 
 📌 What This Tool Does
 * 🐾 Name: `list_animals`
-* 📝 Description: “List all animals in the animal rescue service”
 * 📄 Returns: A plain text object with all animals 🐔
 
 🧠 Where Do I Add This?
@@ -291,7 +295,7 @@ this.server.registerTool(
 
 **Let's fill in the description where it currently says `TODO`.**
 
-Tool descriptions are important, it's like SEO for your tool - the better you do it, the easier its discoverable by Claude for exmaple.
+Tool descriptions are important, it's like **SEO for your tool** - the better you do it, the easier its discoverable by Claude for exmaple.
 
 **🤔 What did you come up with for your tool description?**
 
@@ -365,29 +369,25 @@ Paste that into your code where the following comment appears:
 <summary>🆘 Break Glass Code: Copy/paste version of list_animals</summary>
 
 ```ts
-async init() {		
-	// Tool 1: list_animals
+async init() {
+  // Tool 1: list_animals
   this.server.registerTool(
-  	"list_animals",
-  	{
-  		title: "List all animals",
-  		description: "List all animals in the animal rescue service",
-  		outputSchema: {
-  			animals: z.array(animalSchema)
-  		}
-  	},
-  	async () => {
-  		const structuredContent = {
-  			animals: await this.animalRescueService.listAnimals()
-  		};
-  		return {
-  			// some clients don't yet support structured content, so we need to return text
-  			content: [{
-  				type: "text",
-  				text: JSON.stringify(structuredContent)
-  			}],
-  			structuredContent
-  		};
+    "list_animals",
+    {
+      title: "List all animals",
+      description: "List all animals in the animal rescue service",
+      outputSchema: {
+        animals: z.array(animalSchema)
+      }
+    },
+    async () => {
+      const animals = await this.animalRescueService.listAnimals();
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify({ animals })
+        }]
+      };
     }
   );
 }

@@ -65,29 +65,23 @@ The last part is to tell the tool what to do with the id.
 
 ```ts
 this.server.registerTool(
-	"get_animal_by_id",
-	{
-		title: "Get an animal",
-		description: "Get an animal by id, only use this if you know the id of the anim
-		outputSchema: {
-			animal: z.nullable(animalSchema)
-		},
-		inputSchema: {
-			id: z.string()
-		}
-	},
-	async ({ id }) => {
-		const structuredContent = {
-			animal: await this.animalRescueService.getAnimalById(id)
-		};
-		return {
-			content: [{
-				type: "text",
-				text: JSON.stringify(structuredContent)
-			}],
-			structuredContent
-		};
-	}
+  "get_animal_by_id",
+  {
+    title: "Get an animal",
+    description: "Get an animal by id, only use this if you know the id of the animal",
+    outputSchema: {
+      animal: z.nullable(animalSchema)
+    },
+    inputSchema: {
+      id: z.string()
+    }
+  },
+  async ({ id }) => ({
+    content: [{
+      type: "text",
+      text: JSON.stringify(this.animalRescueService.getAnimalById(id))
+    }]
+  })
 );
 ```
 
@@ -168,29 +162,23 @@ Now return the result from your animal service as plain text:
 
 ```ts
 this.server.registerTool(
-	"search_animals_by_name",
-	{
-		title: "Get an animal",
-		description: "Find an animal by name, only use this if you know the name of the animal",
-		outputSchema: {
-			animal: z.nullable(animalSchema)
-		},
-		inputSchema: {
-			name: z.string()
-		}
-	},
-	async ({ name }) => {
-		const structuredContent = {
-			animal: await this.animalRescueService.getAnimalByName(name)
-		};
-		return {
-			content: [{
-				type: "text",
-				text: JSON.stringify(structuredContent)
-			}],
-			structuredContent
-		};
-	}
+  "search_animals_by_name",
+  {
+    title: "Get an animal",
+    description: "Find an animal by name, only use this if you know the name of the animal",
+    outputSchema: {
+      animal: z.nullable(animalSchema)
+    },
+    inputSchema: {
+      name: z.string()
+    }
+  },
+  async ({ name }) => ({
+    content: [{
+      type: "text",
+      text: JSON.stringify(this.animalRescueService.getAnimalByName(name))
+    }]
+  })
 );
 ```
 
@@ -282,33 +270,29 @@ This logic returns:
 
 ```ts
 this.server.registerTool(
-	"adopt_pet",
-	{
-		title: "Adopt a pet",
-		description: "Adopt a pet by id, only use this if you know the id of the animal, if the output is null there was an error. If a pet is not compatible with the customer, urge them to reconsider and adopt a more compatible pet.",
-		outputSchema: {
-			certificate: z.nullable(adoptionCertificateSchema),
-			success: z.boolean()
-		},
-		inputSchema: {
-			id: z.string()
-		}
-	},
-	async ({ id }) => {
-		const certificate = await this.animalRescueService.adoptAnimal(id);
-		const structuredContent = {
-			certificate,
-			success: certificate !== null
-		};
-		return {
-			content: [{
-				type: "text",
-				text: JSON.stringify(structuredContent)
-			}],
-			structuredContent
-		};
-	}
-);
+  "adopt_pet",
+  {
+    title: "Adopt a pet",
+    description: "Adopt a pet by id, only use this if you know the id of the animal. If a pet is not compatible with the customer, urge them to reconsider and adopt a more compatible pet.",
+    outputSchema: {
+      certificate: z.nullable(adoptionCertificateSchema),
+      success: z.boolean()
+    },
+    inputSchema: {
+      id: z.string()
+    }
+  },
+  async ({ id }) => {
+    const certificate = this.animalRescueService.adoptAnimal(id);
+    const success = certificate !== null;
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({ certificate, success })
+      }]
+    }; 
+  }
 ```
 
 </details>  
@@ -319,6 +303,7 @@ Test with a prompt like:
 
 > “Adopt Cocoa”
 
+Question: Can you adopt Cocoa twice?
 
 
 ### 4. 🧪 Run a Full Scenario (E2E)
