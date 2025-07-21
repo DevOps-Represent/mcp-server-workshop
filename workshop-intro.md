@@ -2,10 +2,6 @@
 
 Now that we've settled in, done some intros and learned some of the basic concepts, let's start the project work.
 
-You can choose between the following languages:
-- 🛠️ [Typescript](./typescript/animal-rescue-mcp-server/README.md) (local and bonus cloudflare hosted solution)
-- 🐍 Python (local solution only)
-
 Here's a high-level overview of what we'll be covering in 2 parts. The workshop content is a mix of understanding key concepts, writing code and cli execution as well as parts for you to play around with prompt engineering.
 
 ### 🧩 Part 1: Setup & Your First Tool

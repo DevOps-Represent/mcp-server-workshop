@@ -204,27 +204,6 @@ Open your MCP-compatible client of choice and connect it to your running server:
 - if you're using SSE: http://localhost:8787/sse
 </details>
 
-<details>
-<summary><strong>Cursor</strong></summary>
-1. Settings -> Cursor Settings -> Tools & Integration
-2. New MCP Server
-3. File `.config` should open, add your MCP server there:
-
-```
-{
-  "mcpServers": {
-    "animal-rescue": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "http://localhost:8787/mcp"
-      ]
-    }
-  }
-}
-```
-
-</details>
 
 
 At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
@@ -398,7 +377,7 @@ async init() {
 
 ### 8. 🧪 Test It Out
 
-Now open Claude/Cloudflare Playground/Cursor (or your client) and type:
+Now open Claude/Cloudflare Playground (or your client) and type:
 
 ```
 Can you list all the animals available for adoption?

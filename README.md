@@ -2,9 +2,9 @@
 
 Welcome to the workshop! In this hands-on session, you'll learn how to build and deploy an **MCP (Model Context Protocol) server** — the backend brain behind AI clients like assistants, copilots, and autonomous agents.
 
-Using the open-source **TypeScript or Python MCP SDK** and **Claude**, you’ll create a system that gives an LLM memory, tool access, and structured prompts — and deploy it live using **Cloudflare**.
+Using the open-source **TypeScript MCP SDK** and **Claude/Cloudflare Playground**, you’ll create a system that gives an LLM memory, tool access, and structured prompts — and deploy it live using **Cloudflare**.
 
-No prior AI experience needed — just Python, JavaScript/TypeScript, and curiosity!
+No prior AI experience needed — just high-level JavaScript/TypeScript, and curiosity!
 
 ---
 
@@ -46,14 +46,14 @@ All tools are free, open source, or have free tiers. We'll support you with setu
 
 | Tool                            | Purpose                          |
 |---------------------------------|----------------------------------|
-| TypeScript or Python MCP SDK    | Core server logic                |
-| Node.js v18+ or Python 3.10+    | Runtime                          |
+| TypeScript MCP SDK              | Core server logic                |
+| Node.js v18+                    | Runtime                          |
 | MCP client of choice            | AI model backend                 |
 | Cloudflare Workers /            | Live deployment platform         |
 
 You’ll need:
 - A personal GitHub account
-- A working Node.js v18+ or Python 3.10+ environment (or Gitpod access)
+- A working Node.js v18+ environment
 - An account with [Claude](https://claude.ai/) or mcp client of choice
 - A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier is fine)
 
