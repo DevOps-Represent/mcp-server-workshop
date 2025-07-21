@@ -52,6 +52,7 @@ All tools are free, open source, or have free tiers. We'll support you with setu
 | Cloudflare Workers /            | Live deployment platform         |
 
 You’ll need:
+
 - A personal GitHub account
 - A working Node.js v18+ environment
 - An account with [Claude](https://claude.ai/) or mcp client of choice

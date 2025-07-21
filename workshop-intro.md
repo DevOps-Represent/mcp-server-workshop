@@ -4,7 +4,7 @@ Now that we've settled in, done some intros and learned some of the basic concep
 
 Here's a high-level overview of what we'll be covering in 2 parts. The workshop content is a mix of understanding key concepts, writing code and cli execution as well as parts for you to play around with prompt engineering.
 
-### 🧩 Part 1: Setup & Your First Tool
+## 🧩 Part 1: Setup & Your First Tool
 
 - 🔁 Clone the Repo
 - 🗂️ Overview of the Repo & Code
@@ -19,11 +19,12 @@ Here's a high-level overview of what we'll be covering in 2 parts. The workshop 
 - 🧪 Test Your Tool
 
 ### 🍱 Lunch Break
+
 ### 🔒 Security and Privacy concepts
 
 ---
 
-### 🛠️ Part 2: More Tools & Smarter Responses
+## 🛠️ Part 2: More Tools & Smarter Responses
 
 - 🏷️ Add Tool: `get_animal_by_id`
 - 🧪 Test: `get_animal_by_id`
@@ -38,5 +39,3 @@ Here's a high-level overview of what we'll be covering in 2 parts. The workshop 
 - 🧑🏽‍🎓 Productionising: deploy REST API
 - 📦 Deployment to Cloudflare
 - 🧪 Test
-
-
