@@ -8,7 +8,7 @@ We’ll link to official install guides where needed to keep things simple and u
 ---
 
 <details>
-<summary><strong>0. Pick your favourite Code Editor</strong></summary>
+<summary><strong>1. Pick your favourite Code Editor</strong></summary>
 
 To follow along this workshop, you will need a code editor such as VS Code, IntelliJ, Cursor or vim.
 
@@ -17,7 +17,7 @@ To follow along this workshop, you will need a code editor such as VS Code, Inte
 ---
 
 <details>
-<summary><strong>1. Install Node.js (for TypeScript users)</strong></summary>
+<summary><strong>2. Install Node.js (for TypeScript users)</strong></summary>
 
 You’ll need **Node.js v18+** to use the TypeScript MCP SDK and deploy to Cloudflare.
 
@@ -32,24 +32,6 @@ npm -v
 
 </details>
 
----
-
-<details>
-<summary><strong>2. Install Python (for Python users)</strong></summary>
-
-You’ll need **Python 3.10+** to use the Python MCP SDK.
-
-👉 [Install Python](https://www.python.org/downloads/)
-
-After installation, confirm it's working:
-
-```bash
-python --version
-```
-
-(You may need to use `python3` on some systems.)
-
-</details>
 
 ---
 
@@ -85,11 +67,9 @@ We’ll be using Claude and will take advantage of their free tier, alternativel
 ---
 
 <details>
-<summary><strong>5. Install a Package Manager</strong></summary>
+<summary><strong>5. Install a Typescript Package Manager</strong></summary>
 
-**TypeScript users:** Use `npm` or `pnpm` (comes with Node.js).  
-<!-- TODO: decide whether we'll be using pip or uv -->
-**Python users:** Use `pip` or `pipenv`.
+Use `npm` or `pnpm` (comes with Node.js).  
 
 To check:
 
@@ -97,17 +77,7 @@ To check:
 # For TS
 npm -v
 pnpm -v
-
-# For Python
-pip --version
 ```
-
-(You may need to use `pip3` on some systems.)
-
-If needed:  
-👉 [Install pip](https://pip.pypa.io/en/stable/installation/)  
-👉 [Install pipenv](https://pipenv.pypa.io/en/latest/)
-<!-- TODO: instructions for uv -->
 
 </details>
 
@@ -135,20 +105,6 @@ We’ll walk through the rest in the workshop.
 
 </details>
 
----
-
-<details>
-<!-- TODO: remove if we don't manage to test and set this up -->
-<summary><strong>7. (Optional) Use Gitpod or Codespaces</strong></summary>
-
-If you’d prefer not to install anything locally, you can use a cloud dev environment:
-
-- [Gitpod](https://gitpod.io) – auto launches from `.gitpod.yml`
-- [GitHub Codespaces](https://github.com/features/codespaces) – available for many users on GitHub
-
-We’ll provide a Gitpod link in the starter repo.
-
-</details>
 
 ---
 
@@ -156,7 +112,7 @@ We’ll provide a Gitpod link in the starter repo.
 <summary><strong>✅ Checklist Before You Arrive</strong></summary>
 
 - [ ] A Code editor
-- [ ] Node.js **v18+** OR Python **3.10+** installed  
+- [ ] Node.js **v18+** installed  
 - [ ] Git installed + GitHub account ready  
 - [ ] Ensure you have an MCP Client ready
 - [ ] Code editor installed (VS Code, etc.)
