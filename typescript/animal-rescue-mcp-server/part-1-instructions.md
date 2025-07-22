@@ -208,6 +208,7 @@ Open your MCP-compatible client of choice and connect it to your running server:
 
 <details>
 <summary><strong>Cloudflare Playground</strong></summary>
+ 
 1. Go to https://playground.ai.cloudflare.com
 2. Enter MCP server URL: 
 - if you're using stdio: http://localhost:8787/mcp
