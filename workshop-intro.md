@@ -1,6 +1,6 @@
 # 🐾 Animal Rescue MCP Server Workshop Overview
 
-If you need to, make sure you start off taking a look at our workshop slides, they include:
+Make sure you start off taking a look at our workshop slides, they include:
 - why
 - what
 - security and privacy concepts
