@@ -3,13 +3,13 @@
 
 Welcome! In this workshop, we’ll explore what an MCP server is, how it connects to AI models like Claude, and how to use tools and prompts to build a smart backend — all while helping match humans with adoptable pets 🐕🐍🐔
 
-You’ll be using the **TypeScript MCP SDK**, but don’t worry — this workshop is about understanding **how MCP servers work**, not mastering every line of code.
+You’ll be using the **TypeScript MCP SDK**, but don’t worry if you're not familiar with **TypeScript** — this workshop focuses on understanding  **how MCP servers work**, not mastering the code 😉.
 
 ---
 
 ## 🧩 Part 1: Set Up Your Server & List Animals
 
-### 1. 🚀 Clone the repo via your command line of choice
+### 1. 🚀 Clone the repo via your terminal/command line of choice
 
 ```bash
 git clone https://github.com/DevOps-Represent/mcp-server-workshop.git
@@ -24,8 +24,8 @@ In the `src` folder you'll find:
 * 📄 `index.ts`: Your main entry point — this starts your server and registers the tools - this is where you'll be working the most.
 * 📄 `animal-rescue-service.ts`: This file contains some pre-built logic for the workshop — like functions to get animal data and schemas that describe what a valid animal looks like.
   * We’ve already defined things like:
-    * animalSchema: What each animal object includes (name, type, medical needs, etc.)
-    * AnimalRescueService: A helper class with methods to list animals, find them by name or ID, and simulate adoptions.
+    * **animalSchema**: What each animal object includes (name, type, medical needs, etc.)
+    * **AnimalRescueService**: A helper class with methods to list animals, find them by name or ID, and simulate adoptions.
 * 📄 `animal-data.ts`: Static JSON-like data that contains info on adoptable pets
 
 #### Imports
@@ -36,22 +36,22 @@ In the `src` folder you'll find:
 import { McpAgent } from "agents/mcp";
 ```
 
-McpAgent is a wrapper built around the MCP SDK tools, designed to simplify building your own MCP server. It’s not part of the SDK itself, but it uses the SDK under the hood.
+**McpAgent** is a wrapper built around the **MCP SDK tools**, designed to simplify building your own **MCP server**. It’s not part of the SDK itself, but it uses the SDK under the hood.
 
-MyMCP (your class) → McpAgent (custom wrapper) → MCP SDK tools (McpServer, etc.)
+**MyMCP** (your class) → **McpAgent** (custom wrapper) → **MCP SDK tools** (McpServer, etc.)
 
 ```ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 ```
 
-McpServer: This is the actual server that communicates with Claude (or another MCP-compatible client).
+**McpServer**: This is the actual server that communicates with **Claude** (or another MCP-compatible client).
 It listens for requests, manages tool registration, and handles sending back structured responses.
 
 ```ts
 import { z } from "zod";
 ```
 
-z: This is from the Zod library — used to define and validate input/output schemas for your tools.
+**z**: This is from the Zod library — used to define and validate input/output schemas for your tools.
 Helps ensure that your client sends structured data you can work with (and avoids weird bugs).
 
 ```ts
@@ -64,9 +64,9 @@ import {
 
 We've done some work to create the animal rescue service, so you're not creating is from scratch. Importing the following means we focus more on the mcp server set up and less about the animal rescue service creation!
 
-* AnimalRescueService: A helper class that contains all the logic for managing pets — listing them, looking them up, simulating adoptions, etc.
-* animalSchema: A Zod schema that describes what a valid animal object looks like (e.g., name, type, home requirements).
-* adoptionCertificateSchema: Another Zod schema — likely used for generating structured confirmation when a pet is adopted (e.g., name, date, adopter).
+* **AnimalRescueService**: A helper class that contains all the logic for managing pets — listing them, looking them up, simulating adoptions, etc.
+* **animalSchema**: A Zod schema that describes what a valid animal object looks like (e.g., name, type, home requirements).
+* **adoptionCertificateSchema**: Another Zod schema — likely used for generating structured confirmation when a pet is adopted (e.g., name, date, adopter).
 
 #### 📥 How Your MCP Server Handles Incoming Requests (Cloudflare example)
 
@@ -95,24 +95,20 @@ export default {
 };
 ```
 
-**🧠 What This Is Doing Using a Cloudflare playground version**
-
-This section is what your mcp client uses to decide how to route incoming HTTP requests to the right part of your MCP server.
-
-🧩 Let’s break down what each part does:
+##### 🧩 Let’s break down what each part does:
 
 - **🔁 fetch(...)**
 
-  - This is the main handler. Every time a request comes into your server, it runs this function.
+  - This is the main handler. Every time a request comes into your server, it runs this function to handle incoming requests.
 
 - **✅ const url = new URL(request.url);**
 
-  - Parses the request so we can check what the URL path is (like /sse or /mcp).
+  - Parses the request so we can check what the URL path is (like `/sse` or `/mcp`).
 
 <details>
 <summary>⚔️ Side Quest: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
 
-MCP currently defines two standard transport mechanisms:
+**MCP** currently defines two standard transport mechanisms:
 
 #### 🧠 `/mcp` – Standard Input/Output (stdio)
 
@@ -151,16 +147,15 @@ MCP currently defines two standard transport mechanisms:
 ```ts
 return new Response("Not found", { status: 404 });
 ```
-  - If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
+  - If the request doesn’t match `/sse` or `/mcp`, the server just replies with a **“Not found”** message.
 
-
-If the request doesn’t match /sse or /mcp, the server just replies with a “Not found” message.
 
 ### 3. 📦 Install dependencies
 
-Install the required packages and start your MCP server so it can run locally and accept connections from your AI client.
+Install the required packages and start your MCP server so it can run locally and accept connections from your AI client. From the root of your repository:
 
 ```
+cd typescript/animal-rescue-mcp-server/src/
 npm install
 ```
 
@@ -171,6 +166,25 @@ npm start
 ```
 
 You should see your MCP server booting up on <http://localhost:8787>
+
+```
+> animal-rescue-mcp-server@0.0.0 start
+> wrangler dev
+
+
+ ⛅️ wrangler 4.22.0
+───────────────────
+Your Worker has access to the following bindings:
+Binding                     Resource            Mode
+env.MCP_OBJECT (MyMCP)      Durable Object      local
+
+╭──────────────────────────────────────────────────────────────────────╮
+│  [b] open a browser [d] open devtools [c] clear console [x] to exit  │
+╰──────────────────────────────────────────────────────────────────────╯
+[wrangler:info] Ready on http://localhost:8787
+```
+
+
 
 ### 5. 🔌 Connect your MCP client (Choose ONE)
 
