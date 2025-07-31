@@ -90,7 +90,7 @@ export default {
         .fetch(request, env, ctx);
     }
 
-    return new Response("Not found", { status: 404 });
+    return new Response("MCP server active 🤖. Connect via MCP protocol at /mcp or /sse.", { status: 404 });
   },
 };
 ```
@@ -145,14 +145,16 @@ export default {
 
 - **🛑 All other paths**
 ```ts
-return new Response("Not found", { status: 404 });
+return new Response("MCP server active 🤖. Connect via MCP protocol at /mcp or /sse.", { status: 404 });
 ```
-  - If the request doesn’t match `/sse` or `/mcp`, the server just replies with a **“Not found”** message.
+  - If the request doesn’t match `/sse` or `/mcp`, the server just replies with a 
+  **“MCP server active 🤖. Connect via MCP protocol at /sse or /mcp.”** message.
 
 
 ### 3. 📦 Install dependencies
 
-Install the required packages and start your MCP server so it can run locally and accept connections from your AI client. From the root of your repository:
+Install the required packages and start your MCP server so it can run locally and
+accept connections from your AI client. From the root of your repository:
 
 ```
 cd typescript/animal-rescue-mcp-server/src/
@@ -165,7 +167,7 @@ npm install
 npm start
 ```
 
-You should see your MCP server booting up on <http://localhost:8787>
+You should see your MCP server booting up on <http://localhost:8787> with output similar to below.
 
 ```
 > animal-rescue-mcp-server@0.0.0 start
@@ -184,11 +186,12 @@ env.MCP_OBJECT (MyMCP)      Durable Object      local
 [wrangler:info] Ready on http://localhost:8787
 ```
 
-
+The server is now available for MCP connections 🥳
 
 ### 5. 🔌 Connect your MCP client (Choose ONE)
 
-Open your MCP-compatible client of choice and connect it to your running server:
+Open your MCP-compatible client of choice and connect it to your running server.
+In this exercise we are using Claude as the MCP client.:
 
 <details>
 <summary><strong>Claude Desktop</strong></summary>
@@ -212,11 +215,15 @@ Open your MCP-compatible client of choice and connect it to your running server:
   }
 }
 ```
-
 5. Restart Claude
 6. In the main window, tap on the “Search and tools” icon (next to the Plus icon). You should see your MCP server listed there.
 
-> Note: It may be currently disconnected, as there are no tools yet. We'll build them in the next step!
+<div align="center">
+  <img src="images/claude_animal_rescue-450x400.gif" alt="Connect your MCP Client">
+</div>
+
+> [!NOTE]
+> It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
 </details>
 
 
@@ -232,24 +239,30 @@ Open your MCP-compatible client of choice and connect it to your running server:
 
 At this point, if you try to connect to it, it may not work, as there are no tools available yet. We'll build them in the next step!
 
-#### MCP Inspector
+#### 🕵🏼‍♀️ MCP Inspector
+
+The [MCP Inspector][mcp-inspector] is an interactive developer tool for testing and debugging MCP servers.
 1. Run `npx @modelcontextprotocol/inspector` in a terminal
 2. Your browser should automatically open with the correct url, it will be printed out in the terminal as well
 3. Select transport type `sse` and url `http://localhost:8787/sse`
 
-> Note: there is no AI Agent invovled with MCP inspector, uses this when you want more direct visibility to the MCP Server (more info [here](https://modelcontextprotocol.io/docs/tools/inspector))
+> [!NOTE]
+> There is no AI Agent invovled with MCP inspector, uses this when you want more direct visibility to the MCP Server (more info [here](https://modelcontextprotocol.io/docs/tools/inspector))
 
 ⸻
 
 ### 6. 🧱 Understand the MCP Scaffolding
 
-Inside this class, we set up everything your AI-powered server needs — including:
+Next, we'll configure a [MCP tool][mcp-tool], which is how you expose specific functions to MCP clients
+so they can interact with your server's capabilities.
+To create a tool we use a class called **MyMCP**. Inside this class, described below,
+we set up everything your AI-powered server needs — including:
 
 * ✨ A name and version
 * 🧰 The tools it can call, which we will create in this workshop
 * 📄 Any resources it might return (like adoption info)
 
-Your setup might look like this:
+Your class setup might look like this:
 
 ```ts
 export class MyMCP extends McpAgent {
@@ -266,7 +279,7 @@ export class MyMCP extends McpAgent {
 }
 ```
 
-This structure keeps all your server logic tidy and makes it easy to add more tools or features as you go.
+This typescript structure keeps all your server logic tidy and makes it easy to add more tools or features as you go.
 
 ### 7. 🛠️ Add Tool 1: list_animals
 
@@ -281,11 +294,15 @@ This tool connects your MCP server to your animal data and makes it available to
 
 🧠 Where Do I Add This?
 
-Add this inside your `init()` method in your MyMCP class (in `index.ts` - which is where all your tools will be added).
+Add this inside your `init()` method of your MyMCP class. This class is defined in the `index.ts`,
+which is where all your tools will be added. 
+
+> [!NOTE]
+> This file is located under the `mcp-server-workshop/typescript/animal-rescue-mcp-server/src` folder
 
 Look for `// Tool 1: list_animals`
 
-Start typing out the `registerTool()` call inside init():
+Start typing out the `registerTool()` call inside `init()`:
 
 ```ts
 this.server.registerTool(
@@ -300,8 +317,8 @@ this.server.registerTool(
   // We’ll add what the tool does in the next step — it will return a list of animals as plain text
 );
 ```
-
-ℹ️ The tool name `list_animals` is how your mcp client will refer to it internally.
+> [!IMPORTANT]
+> The tool name `list_animals` is how your **MCP client** will refer to it internally.
 
 **Let's fill in the description where it currently says `TODO`.**
 
@@ -310,9 +327,9 @@ Tool descriptions are important, it's like **SEO for your tool** - the better yo
 **🤔 What did you come up with for your tool description?**
 
 <details>
-<summary>⚔ Side Quest: Writing Good Tool Descriptions</summary>
+<summary>⚔ <b>Side Quest</b>: Writing Good Tool Descriptions ✍🏼</summary>
 
-Picking the right description for your tool helps your mcp client know when (and how) to use it. This isn’t just documentation — it’s **part of the prompt**.
+Picking the right description for your tool helps your MCP client know when (and how) to use it. This isn’t just documentation — it’s **part of the prompt**.
 
 ---
 
@@ -340,36 +357,37 @@ Picking the right description for your tool helps your mcp client know when (and
 
 ---
 
-#### 💡 Tips
-
-* Use **clear verbs**: list, return, mark, suggest, look up  
-
-* Think: “How would I describe this tool in one sentence to another human?”
-* The model sees this — so make it *mcp-client-friendly*, not just code-friendly
+> [!TIP]
+> * Use **clear verbs**: list, return, mark, suggest, look up  
+> * Think: “How would I describe this tool in one sentence to another human?”
+> * The model sees this — so make it *mcp-client-friendly*, not just code-friendly
 
 </details>
 <br>
 
-**Now let’s tell the tool what to do when your mcp client calls it.**
+**Now let’s tell the tool what to do when your MCP client calls it.**
 
 In this case, we want to return the full list of animals from your service as a plain text string.
 
 Here’s what that looks like:
 
 ```ts
-async () => ({
-  content: [{
-    type: "text",
-    text: JSON.stringify(this.animalRescueService.listAnimals())
-  }]
-})
+    async () => {
+      const animals = await this.animalRescueService.listAnimals();
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify({ animals })
+        }]
+      };
+    }
 ```
 
 This will:
 
 * Call your pre-built function `listAnimals()`
-* Convert the result into a readable JSON string
-* Return it as plain text, which your mcp client can read and use in its reply
+* Convert the result into a readable **JSON string**
+* Return it as plain text, which your **MCP client** can read and use in its reply
 
 Paste that into your code where the following comment appears:
 
@@ -377,7 +395,7 @@ Paste that into your code where the following comment appears:
 
 <details>
 
-<summary>🆘 Break Glass Code: Copy/paste version of list_animals</summary>
+<summary>🆘 <b>Break Glass Code:</b> Copy/paste version of list_animals</summary>
 
 ```ts
 async init() {
@@ -416,6 +434,10 @@ Can you list all the animals available for adoption?
 
 Claude should call your tool and reply with a list of pets! 🎉
 
+<div align="center">
+  <img src="images/claude_list_animals_tool-450x400.gif" alt="List animal tool">
+</div>
+
 <details>
 <summary>🐞 Common Errors + Debugging Tips</summary>
 
@@ -428,6 +450,8 @@ Claude should call your tool and reply with a list of pets! 🎉
 
 </details>
 
-Nice work on getting this far. Now that we've created our first tool, let's imbed that knowledge further and creation some more tools in Part 2!
+Nice work on getting this far 🙌🏼🥳🍾🎈. Now that we've created our first tool, let's imbed that knowledge further and creation some more tools in [Part 2](part-2-instructions.md)!
 
-## [Part 2](part-2-instructions.md)
+
+[mcp-inspector]: https://modelcontextprotocol.io/legacy/tools/inspector
+[mcp-tool]: https://modelcontextprotocol.io/specification/2025-06-18/server/tools

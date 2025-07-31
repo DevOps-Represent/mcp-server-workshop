@@ -51,6 +51,6 @@ export default {
 				.fetch(request, env, ctx);
 		}
 
-		return new Response("Not found", { status: 404 });
+		return new Response("MCP server active 🤖. Connect via MCP protocol at /mcp or /sse.", { status: 404 });
 	},
 };
