@@ -223,7 +223,7 @@ In this exercise we are using Claude as the MCP client.:
 </div>
 
 > ℹ️ **Note**
-
+>
 > It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
 
 </details>
