@@ -222,10 +222,10 @@ In this exercise we are using Claude as the MCP client.:
   <img src="images/claude_animal_rescue-450x400.gif" alt="Connect your MCP Client">
 </div>
 
-> [!NOTE]
-> It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
 </details>
 
+> [!NOTE]
+> It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
 
 <details>
 <summary><strong>Cloudflare Playground</strong></summary>
