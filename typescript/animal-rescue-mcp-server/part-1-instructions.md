@@ -106,7 +106,7 @@ export default {
   - Parses the request so we can check what the URL path is (like `/sse` or `/mcp`).
 
 <details>
-<summary>⚔️ Side Quest: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
+<summary>⚔️ <b>Side Quest</b>: What's the difference between <code>/mcp</code> and <code>/sse</code>?</summary>
 
 **MCP** currently defines two standard transport mechanisms:
 
@@ -222,10 +222,13 @@ In this exercise we are using Claude as the MCP client.:
   <img src="images/claude_animal_rescue-450x400.gif" alt="Connect your MCP Client">
 </div>
 
+> ℹ️ **Note**
+
+> It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
+
 </details>
 
-> [!NOTE]
-> It may be currently disconnected, as there are no tools yet. We'll build them in the next step 😉!
+
 
 <details>
 <summary><strong>Cloudflare Playground</strong></summary>
@@ -357,7 +360,7 @@ Picking the right description for your tool helps your MCP client know when (and
 
 ---
 
-> [!TIP]
+> 💡 Tip
 > * Use **clear verbs**: list, return, mark, suggest, look up  
 > * Think: “How would I describe this tool in one sentence to another human?”
 > * The model sees this — so make it *mcp-client-friendly*, not just code-friendly
